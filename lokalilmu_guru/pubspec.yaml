@@ -52,7 +52,27 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: asset/fonts/Poppins-Thin.ttf
+          weight: 100
+        - asset: asset/fonts/Poppins-ExtraLight.ttf
+          weight: 200
+        - asset: asset/fonts/Poppins-Light.ttf
+          weight: 300
+        - asset: asset/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: asset/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: asset/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: asset/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: asset/fonts/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: asset/fonts/Poppins-Black.ttf
+          weight: 900
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

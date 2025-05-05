@@ -38,7 +38,13 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Loka Ilmu',
+      title: 'LokaIlmu',
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        textTheme: ThemeData.light().textTheme.apply(
+          fontFamily: 'Poppins',
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       home: _isLoading
           ? const Scaffold(
