@@ -1,8 +1,18 @@
 # ADR 005: Pemilihan Dependency Injection Framework
 
 ## Status
-
 Accepted
+
+## Date
+06/05/2025
+
+## Decider 
+Ketua Tim - @KingPublic
+
+## Informed
+@veryepiccindeed
+@alicialisal
+Calvin Richie
 
 ## Context
 

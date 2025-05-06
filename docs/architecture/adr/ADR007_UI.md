@@ -1,8 +1,18 @@
 # ADR 007: Pendekatan Theming dan Styling UI
 
 ## Status
-
 Accepted
+
+## Date
+06/05/2025
+
+## Decider 
+Ketua Tim - @KingPublic
+
+## Informed
+@veryepiccindeed
+@alicialisal
+Calvin Richie
 
 ## Context
 
