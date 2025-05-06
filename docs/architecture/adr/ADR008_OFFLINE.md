@@ -16,7 +16,7 @@ Calvin Richie
 
 ## Context
 
-Meskipun sebagian konten seperti pelatihan dan perpustakaan bisa saja diakses secara offline di masa depan, saat ini fokus pengembangan masih berbasis online. Fitur offline akan dipertimbangkan kembali setelah versi awal rilis.
+Meskipun sebagian konten seperti materi pelatihan dan perpustakaan bisa saja diakses secara offline untuk pengembangan lebih lanjut, saat ini fokus pengembangan masih berbasis online. Fitur offline akan dipertimbangkan kembali setelah versi awal rilis.
 
 ## Decision
 
