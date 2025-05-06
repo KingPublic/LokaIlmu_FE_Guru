@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Icon bulat kuning
                 const CircleAvatar(
-                  backgroundColor: Color(0xFFFCD266),
+                  backgroundColor: Color(0xFFFBCD5F),
                   radius: 30,
                   child: Icon(Icons.school, size: 30, color: Colors.black),
                 ),

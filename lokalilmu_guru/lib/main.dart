@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: _isLoading
           ? const Scaffold(
-              backgroundColor: Color(0xFFFCCD52),
+              backgroundColor: Color(0xFFFBCD5F),
               body: Center(child: CircularProgressIndicator()),
             )
           : SplashScreenWrapper(seenOnboarding: _seenOnboarding),
