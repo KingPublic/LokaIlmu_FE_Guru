@@ -7,7 +7,7 @@ Accepted
 06/05/2025
 
 ## Decider 
-Ketua Tim - @KingPublic
+Ketua Tim -@KingPublic
 
 ## Informed
 @veryepiccindeed
@@ -45,96 +45,3 @@ Kami memilih untuk menggunakan **GetIt** dikombinasikan dengan **injectable** se
 
 * Manual injection: lebih rawan kesalahan dan tidak scalable.
 * Provider-based DI: cocok untuk proyek kecil, namun kurang fleksibel untuk modularisasi besar.
-
-
-
-
-
-
-# ADR 006: Strategi Offline & Caching
-
-## Status
-
-Deferred
-
-## Context
-
-Meskipun sebagian konten seperti pelatihan dan perpustakaan bisa saja diakses secara offline di masa depan, saat ini fokus pengembangan masih berbasis online. Fitur offline akan dipertimbangkan kembali setelah versi awal rilis.
-
-## Decision
-
-Strategi offline dan caching **ditunda** untuk saat ini.
-
-## Consequences
-
-### Keuntungan
-
-* Fokus pengembangan ke fitur utama terlebih dahulu.
-
-### Risiko
-
-* Pengguna di daerah dengan koneksi buruk mungkin mengalami kendala.
-
-### Mitigasi
-
-* Modul offline akan dirancang kemudian, terutama untuk perpustakaan digital.
-
----
-
-# ADR 007: Strategi Penanganan Error & Monitoring
-
-## Status
-
-Deferred
-
-## Context
-
-Aplikasi menggunakan backend Laravel dan tidak terintegrasi langsung dengan Firebase. Oleh karena itu, solusi seperti Crashlytics belum diprioritaskan. Error saat ini ditangani secara lokal saat development.
-
-## Decision
-
-Penanganan error dan monitoring **ditunda**, dengan opsi untuk menggunakan log lokal (misalnya package `logger`) selama tahap awal.
-
-## Consequences
-
-### Keuntungan
-
-* Pengembangan tetap ringan dan tidak tergantung tool eksternal.
-
-### Risiko
-
-* Tidak ada pelaporan error otomatis dari pengguna produksi.
-
-### Mitigasi
-
-* Fitur log upload atau feedback manual bisa dirancang di masa depan.
-
----
-
-# ADR 008: Strategi Testing & CI/CD
-
-## Status
-
-Deferred
-
-## Context
-
-Saat ini pengujian aplikasi dilakukan secara manual menggunakan perangkat Android pribadi. CI/CD pipeline belum dibutuhkan, dan repository hanya digunakan untuk versioning dengan GitHub.
-
-## Decision
-
-CI/CD dan testing otomatis **ditunda**. Pengujian dilakukan manual sambil membangun dasar kode yang stabil.
-
-## Consequences
-
-### Keuntungan
-
-* Proses pengembangan lebih cepat tanpa overhead otomatisasi.
-
-### Risiko
-
-* Rentan terhadap human error jika tidak ada testing otomatis.
-
-### Mitigasi
-
-* Rencana untuk menambahkan testing unit dan widget secara bertahap setelah versi MVP.
