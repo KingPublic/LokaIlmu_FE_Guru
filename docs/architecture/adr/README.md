@@ -1,4 +1,4 @@
-# 📘 Arsitektur Decision Record – *LokaIlmu*
+# 📘 Markdown Arsitektur Decision Record – *LokaIlmu*
 
 Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaIlmu*.
 
