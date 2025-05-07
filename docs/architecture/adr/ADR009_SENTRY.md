@@ -1,4 +1,4 @@
-# ADR 009: Pemilihan Sentry untuk Error Handling & Monitoring
+# ADR 009: Pemilihan Error Handling & Monitoring
 
 ## Status
 Accepted
