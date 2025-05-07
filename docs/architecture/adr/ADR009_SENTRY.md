@@ -1,7 +1,7 @@
 # ADR 009: Pemilihan Sentry untuk Error Handling & Monitoring
 
 ## Status
-Deferred
+Accepted
 
 ## Date
 06/05/2025
