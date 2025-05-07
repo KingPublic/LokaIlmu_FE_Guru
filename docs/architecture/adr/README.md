@@ -4,7 +4,7 @@ Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaI
 
 | No.     | Judul Keputusan                                   | Status          | Tanggal     | Penanggung Jawab     |
 |---------|---------------------------------------------------|-----------------|-------------|----------------------|
-| ADR001  | Pemilihan Arsitektur MVVM                         | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR001  | Pemilihan Arsitektur MVVM (ADR001_MVVM.md)                        | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR002  | Pemilihan BLoC untuk State Management             | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR003  | Pemilihan RESTful API untuk Integrasi BackEnd     | ✅ **Accepted** | 06/05/2025  | @veryepiccindeed     |
 | ADR004  | Pemilihan Local Data Persistence                  | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
