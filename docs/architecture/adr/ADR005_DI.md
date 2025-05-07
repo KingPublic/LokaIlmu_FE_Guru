@@ -12,7 +12,7 @@ Ketua Tim -@KingPublic
 ## Informed
 @veryepiccindeed
 @alicialisal
-Calvin Richie
+@Calvinrichie
 
 ## Context
 

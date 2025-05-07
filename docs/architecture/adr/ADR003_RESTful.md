@@ -12,7 +12,7 @@ Anggota Backend - @veryepiccindeed
 ## Informed
 @KingPublic
 @alicialisal
-Calvin Richie
+@Calvinrichie
 
 ## Context
 
