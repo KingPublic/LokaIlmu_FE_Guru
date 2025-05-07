@@ -4,7 +4,7 @@ Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaI
 
 | No.     | Judul Keputusan                                   | Status          | Tanggal     | Penanggung Jawab     |
 |---------|---------------------------------------------------|-----------------|-------------|----------------------|
-| ADR001  | Pemilihan Arsitektur MVVM (ADR001_MVVM.md)                        | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR001  | [Pemilihan Arsitektur MVVM](ADR001_MVVM.md)                        | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR002  | Pemilihan BLoC untuk State Management             | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR003  | Pemilihan RESTful API untuk Integrasi BackEnd     | ✅ **Accepted** | 06/05/2025  | @veryepiccindeed     |
 | ADR004  | Pemilihan Local Data Persistence                  | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
@@ -25,3 +25,16 @@ Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaI
 
 ## 📂 Lokasi File ADR
 Semua file ADR berada di dalam folder: `/docs/architecture/adr/`
+
+| No.     | Judul Keputusan                                   | Status          | Tanggal     | Penanggung Jawab     |
+|---------|---------------------------------------------------|-----------------|-------------|----------------------|
+| ADR001  | [Pemilihan Arsitektur MVVM](ADR001-pemilihan-arsitektur-mvvm.md)                         | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR002  | [Pemilihan BLoC untuk State Management](ADR002-pemilihan-bloc-untuk-state-management.md) | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR003  | [Pemilihan RESTful API untuk Integrasi BackEnd](ADR003-pemilihan-restful-api.md)         | ✅ **Accepted** | 06/05/2025  | @veryepiccindeed     |
+| ADR004  | [Pemilihan Local Data Persistence](ADR004-pemilihan-local-data-persistence.md)           | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR005  | [Pemilihan Dependency Injection Framework](ADR005-pemilihan-dependency-injection.md)     | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR006  | [Pemilihan Solusi Navigasi & Routing](ADR006-pemilihan-routing.md)                       | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR007  | [Pendekatan Theming dan Styling UI](ADR007-theming-dan-styling.md)                       | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR008  | [Strategi Offline Support & Caching](ADR008-strategi-offline-caching.md)                 | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
+| ADR009  | [Error Handling & Monitoring: Sentry](ADR009-error-handling-monitoring.md)               | ✅ **Accepted** | 06/05/2025  | @veryepiccindeed     |
+| ADR010  | [Strategi Testing & CI/CD](ADR010-strategi-testing-cicd.md)                              | ✅ **Accepted** | 06/05/2025  | @veryepiccindeed     |
