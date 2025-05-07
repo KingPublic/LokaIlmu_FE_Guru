@@ -1,7 +1,7 @@
 # ADR 010: Strategi Testing & CI/CD
 
 ## Status
-Accepted
+Proposed
 
 ## Date
 06/05/2025

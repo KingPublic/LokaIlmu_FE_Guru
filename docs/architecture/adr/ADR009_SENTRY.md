@@ -16,33 +16,38 @@ Ketua Tim - @KingPublic
 
 ## Context
 
-Aplikasi LokaIlmu perlu menangani error dengan baik dan memantau kesehatan aplikasi saat digunakan oleh pengguna asli (guru, kepala sekolah, mentor). Hal ini penting agar tim developer bisa tahu jika aplikasi tiba-tiba error, crash, atau berjalan tidak normal. Pilihannya adalah menggunakan Sentry, Firebase Crashlytics, atau sistem logging manual.
+Tim pengembang aplikasi *LokaIlmu* memiliki keterbatasan waktu dan sumber daya pada fase awal pengembangan. Meskipun tools seperti **Sentry** atau **Firebase Crashlytics** menyediakan pelaporan error otomatis yang sangat membantu, integrasi dan konfigurasi awalnya membutuhkan waktu tambahan.  
+Untuk itu, diputuskan bahwa sistem pelaporan error akan dimulai dengan pendekatan **custom logging** yang sederhana terlebih dahulu.
 
 ## Decision
 
-Tim memutuskan untuk menggunakan Sentry sebagai alat utama untuk error reporting dan monitoring di aplikasi LokaIlmu, baik di sisi Flutter (frontend) maupun Laravel (backend).
+Tim memutuskan untuk:
+- Mengimplementasikan sistem **custom logging** menggunakan wrapper `logService.dart`, yang memanfaatkan `logger` atau `print()` dengan format standar.
+- Menambahkan opsi untuk menyimpan log penting ke local file jika diperlukan untuk debugging.
+- Menyiapkan arsitektur logging agar dapat dengan mudah di-*upgrade* ke **Sentry** di tahap release atau production mendatang.
+
 
 ## Consequences
 
 ### Keuntungan
 
-- Real-time error tracking, jadi tim bisa langsung tahu kalau ada bug atau crash terjadi di sisi pengguna.
-- Support untuk Flutter dan Laravel, jadi satu platform bisa dipakai dua-duanya.
-- Bisa melihat stack trace, user context, dan device info, yang sangat membantu saat debug.
-- Mendukung integrasi ke tools seperti Slack atau Email untuk notifikasi otomatis.
+- Lebih cepat untuk diimplementasikan di fase awal.
+- Tidak menambah beban dependensi atau konfigurasi eksternal.
+- Memberikan fleksibilitas dalam menangani log sesuai kebutuhan aplikasi.
 
 ### Risiko
 
-- Penggunaan data/log terlalu banyak jika tidak dikonfigurasi dengan baik bisa memenuhi kuota gratisnya.
-- Perlu pengaturan awal dan memahami dashboard Sentry untuk memanfaatkan fitur sepenuhnya.
+- Error tidak dilaporkan secara otomatis ke dashboard.
+- Developer harus mencari log manual dari perangkat.
+- Sulit memantau crash yang terjadi di production.
 
 ### Mitigasi
 
-- Konfigurasi logging agar hanya menangkap error penting (bukan log debug biasa).
-- Atur notifikasi hanya untuk error level tinggi (e.g., fatal crash).
-- Pantau penggunaan kuota dan pertimbangkan upgrade plan jika diperlukan.
+- Logging ditulis dengan standar konsisten dan ditempatkan dalam `logService.dart`.
+- Setelah aplikasi mencapai versi stabil (Beta/Release), akan dilakukan integrasi dengan **Sentry** untuk pelaporan error otomatis.
+- Setiap error kritis akan diuji secara manual sebelum rilis ke publik.
+
 
 ## Alternatives Considered
 
-- **Firebase Crashlytics**: Kuat untuk Android/iOS, mudah diintegrasikan. Namun kurang cocok untuk Laravel (butuh solusi terpisah untuk backend).
-- **Custom Logging**: Fleksibel dan bisa dikontrol penuh. Tapi memerlukan waktu lebih banyak untuk membangun sistem alert, log viewer, dan dashboar
+- **Sentry**: Powerful dan mendukung Flutter serta Laravel. Rencana jangka menengah kami, namun ditunda sampai waktu pengembangan lebih longgar.
