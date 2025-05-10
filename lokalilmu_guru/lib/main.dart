@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 import 'register.dart';
 import 'login.dart';
 
@@ -111,23 +112,169 @@ class SplashScreen extends StatelessWidget {
   }
 }
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final PageController _controller = PageController();
+  int _currentIndex = 0;
+
+  final List<Map<String, String>> pages = [
+    {
+      "title": "Selamat Datang di LokaIlmu",
+      "desc": "Platform pelatihan digital untuk meningkatkan kualitas pengajaran guru di sekolah.",
+      "lottie": "asset/images/Animationp1.json"
+    },
+    {
+      "title": "Forum Diskusi dan Perpustakaan Digital",
+      "desc": "Bertanya dan berbagi di forum komunitas, serta akses buku secara online.",
+      "lottie": "asset/images/Animationp2.json"
+    },
+    {
+      "title": "Pelatihan Interaktif & Bersertifikat",
+      "desc": "Ikuti pelatihan digital yang disusun oleh ahli dan dapatkan sertifikat.",
+      "lottie": "asset/images/Animationp3.json"
+    },
+  ];
+
+  void _onNext() {
+    if (_currentIndex < pages.length - 1) {
+      _controller.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+    } else {
+      _completeOnboarding();
+    }
+  }
+
+  Future<void> _completeOnboarding() async {
+    await getIt<OnboardingService>().setSeen();
+    if (context.mounted) context.go('/register');
+  }
+
+  Widget _buildPage(Map<String, String> data) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(child: Lottie.asset(data["lottie"]!, fit: BoxFit.contain)),
+          const SizedBox(height: 16),
+          Text(
+            data["title"]!,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            data["desc"]!,
+            style: const TextStyle(fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await getIt<OnboardingService>().setSeen();
-            if (context.mounted) {
-              context.go('/register');
-            }
-          },
-          child: const Text("Selesai Onboarding"),
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: pages.length,
+              onPageChanged: (index) => setState(() => _currentIndex = index),
+              itemBuilder: (_, index) => _buildPage(pages[index]),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              pages.length,
+              (index) => Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentIndex == index ? 12 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentIndex == index ? Color(0xFF0C3450) : Colors.grey,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        child: _currentIndex == pages.length - 1
+            ? SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _completeOnboarding,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0C3450),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Get Started",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: _completeOnboarding,
+                    child: const Text(
+                      "Skip",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF0C3450),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _onNext,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0C3450),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Next",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+      const SizedBox(height: 24),
+
+        ],
       ),
     );
   }
 }
+
