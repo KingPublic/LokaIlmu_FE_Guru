@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
+import 'package:go_router/go_router.dart';
+// import 'login.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -139,20 +140,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     const Text("Sudah punya akun? "),
                     GestureDetector(
-                      onTap: () {
-                         Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                        );
-                      },
-                      child: const Text(
-                        "Masuk",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
+                    onTap: () {
+                      context.push('/login'); // Ganti dari Navigator.push
+                    },
+                    child: const Text(
+                      "Masuk",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
+                  ),
+
                   ],
                 ),
                 const SizedBox(height: 24),

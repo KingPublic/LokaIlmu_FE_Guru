@@ -1,104 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'splash_screen.dart';
-import 'onboarding_screen.dart'; 
-import 'regis.dart';   
+import 'register.dart';
+import 'login.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupDI();
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+final getIt = GetIt.instance;
+
+void setupDI() {
+  getIt.registerLazySingleton(() => OnboardingService());
+}
+
+class OnboardingService {
+  Future<bool> isSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('seenOnboarding') ?? false;
+  }
+
+  Future<void> setSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('seenOnboarding', true);
+  }
+}
+
+final GoRouter _router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashWrapper(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+  ],
+);
+
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  bool _seenOnboarding = false;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkOnboardingSeen();
-  }
-
-  Future<void> _checkOnboardingSeen() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seen = prefs.getBool('seenOnboarding') ?? false;
-
-    setState(() {
-      _seenOnboarding = seen;
-      _isLoading = false;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: _router,
       title: 'LokaIlmu',
       theme: ThemeData(
         fontFamily: 'Poppins',
-        textTheme: ThemeData.light().textTheme.apply(
-          fontFamily: 'Poppins',
-        ),
+        textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Poppins'),
       ),
-      debugShowCheckedModeBanner: false,
-      home: _isLoading
-          ? const Scaffold(
-              backgroundColor: Color(0xFFFBCD5F),
-              body: Center(child: CircularProgressIndicator()),
-            )
-          : SplashScreenWrapper(seenOnboarding: _seenOnboarding),
     );
   }
 }
 
+class SplashWrapper extends StatelessWidget {
+  const SplashWrapper({super.key});
 
-class SplashScreenWrapper extends StatelessWidget {
-  final bool seenOnboarding;
-
-  const SplashScreenWrapper({super.key, required this.seenOnboarding});
-
-  @override
-  Widget build(BuildContext context) {
-    return SplashScreenWithRedirect(seenOnboarding: seenOnboarding);
-  }
-}
-
-class SplashScreenWithRedirect extends StatefulWidget {
-  final bool seenOnboarding;
-
-  const SplashScreenWithRedirect({super.key, required this.seenOnboarding});
-
-  @override
-  State<SplashScreenWithRedirect> createState() => _SplashScreenWithRedirectState();
-}
-
-class _SplashScreenWithRedirectState extends State<SplashScreenWithRedirect> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      if (widget.seenOnboarding) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const RegisterScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-        );
-      }
-    });
+  Future<String> _determineStartPage() async {
+    await Future.delayed(const Duration(seconds: 2)); // splash delay
+    final seen = await getIt<OnboardingService>().isSeen();
+    return seen ? '/register' : '/onboarding';
   }
 
   @override
   Widget build(BuildContext context) {
-    return const SplashScreen();
+    return FutureBuilder<String>(
+      future: _determineStartPage(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SplashScreen();
+        }
+
+        // Redirect once ready
+        Future.microtask(() => context.go(snapshot.data!));
+        return const SplashScreen();
+      },
+    );
   }
 }
 
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFBCD5F),
+      body: Center(
+        child: Image.asset(
+          'asset/images/Logo@300x-100.jpg',
+          width: 200,
+        ),
+      ),
+    );
+  }
+}
+
+class OnboardingScreen extends StatelessWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await getIt<OnboardingService>().setSeen();
+            if (context.mounted) {
+              context.go('/register');
+            }
+          },
+          child: const Text("Selesai Onboarding"),
+        ),
+      ),
+    );
+  }
+}

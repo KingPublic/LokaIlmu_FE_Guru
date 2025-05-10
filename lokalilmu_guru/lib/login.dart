@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lokalilmu_guru/regis.dart';
+import 'package:go_router/go_router.dart';
+import 'register.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -103,9 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text("Belum punya akun? "),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())
-                        );
-                      },
+                      context.push('/register'); 
+                    },
                       child: const Text(
                         "Daftar",
                         style: TextStyle(
