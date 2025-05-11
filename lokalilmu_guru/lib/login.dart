@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'register.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +10,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  // Controller opsional jika ingin ambil nilai text
+  final TextEditingController _emailOrPhoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Judul & Subjudul
                 const Text(
                   "Login Guru",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -46,13 +48,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Inputan email/nomor hp dan password
-                _buildTextField("Email / Nomor HP."),
-                _buildTextField("Password", obscure: true),
+                // Input Email/HP dan Password
+                _buildTextField(
+                  label: "Email / Nomor HP",
+                  controller: _emailOrPhoneController,
+                ),
+                _buildTextField(
+                  label: "Password",
+                  obscure: true,
+                  controller: _passwordController,
+                ),
 
                 const SizedBox(height: 8),
 
-                // Lupa password
                 Align(
                   alignment: Alignment.centerLeft,
                   child: GestureDetector(
@@ -72,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Tombol Masuk
+                // Tombol Login
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -84,10 +92,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // aksi login
-                      }
-                    },
+                  if (_formKey.currentState!.validate()) {
+                    String emailOrPhone = _emailOrPhoneController.text.trim();
+                    String password = _passwordController.text;
+
+                    // Simulasi login berhasil (ganti dengan pemanggilan backend kalau sudah ada) masih menunggu
+                    if (emailOrPhone == "guru@example.com" && password == "password123") {
+                      context.go('/'); 
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Email atau password salah")),
+                      );
+                    }
+                  }
+                },
+
                     child: const Text(
                       "Masuk",
                       style: TextStyle(color: Colors.white),
@@ -97,15 +116,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Belum punya akun? Daftar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text("Belum punya akun? "),
                     GestureDetector(
                       onTap: () {
-                      context.push('/register'); 
-                    },
+                        context.push('/register');
+                      },
                       child: const Text(
                         "Daftar",
                         style: TextStyle(
@@ -126,21 +144,38 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextField(String label, {bool obscure = false}) {
+  /// Custom reusable TextField builder dengan warna custom
+  Widget _buildTextField({
+    required String label,
+    bool obscure = false,
+    TextEditingController? controller,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
+        controller: controller,
         obscureText: obscure,
-        decoration: _inputDecoration(label),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Isi $label terlebih dahulu';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Color(0xFF012C3D)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.grey),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xFF012C3D)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       ),
     );
   }

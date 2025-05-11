@@ -164,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(child: Lottie.asset(data["lottie"]!, fit: BoxFit.contain)),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             data["title"]!,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
