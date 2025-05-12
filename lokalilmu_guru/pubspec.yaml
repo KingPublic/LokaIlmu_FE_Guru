@@ -92,7 +92,12 @@ flutter:
    - asset/images/Animationp1.json
    - asset/images/Animationp2.json
    - asset/images/Animationp3.json
-   
+   - asset/icons/Beranda.svg
+   - asset/icons/Pelatihan.svg
+   - asset/icons/ForumDiskusi.svg
+   - asset/icons/Perpustakaan.svg
+   - asset/icons/Chat.svg
+   - asset/icons/Notification.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

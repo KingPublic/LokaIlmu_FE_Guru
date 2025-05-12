@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
-import 'package:lokalilmu_guru/blocs/dashboard/dashboard_event.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
-import 'package:lokalilmu_guru/screens/dashboard_page.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dashboard_page.dart';
 import 'login.dart';
 import 'register.dart';
 

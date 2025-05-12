@@ -1,7 +1,67 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lokalilmu_guru/blocs/dashboard/dashboard_event.dart';
-import 'package:lokalilmu_guru/blocs/dashboard/dashboard_state.dart';
+import 'package:lokalilmu_guru/model/schedule_item.dart';
+import 'package:lokalilmu_guru/model/training_item.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
+
+// Events
+abstract class DashboardEvent {}
+
+class LoadDashboardEvent extends DashboardEvent {}
+
+class ToggleCourseStateEvent extends DashboardEvent {
+  final bool hasJoinedCourses;
+
+  ToggleCourseStateEvent(this.hasJoinedCourses);
+}
+
+// States
+abstract class DashboardState extends Equatable {
+  const DashboardState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class DashboardInitial extends DashboardState {}
+
+class DashboardLoading extends DashboardState {}
+
+class DashboardLoaded extends DashboardState {
+  final bool hasJoinedCourses;
+  final List<ScheduleItem> upcomingSchedules;
+  final TrainingItem? currentTraining;
+
+  const DashboardLoaded({
+    required this.hasJoinedCourses,
+    required this.upcomingSchedules,
+    this.currentTraining,
+  });
+
+  @override
+  List<Object?> get props => [hasJoinedCourses, upcomingSchedules, currentTraining];
+
+  DashboardLoaded copyWith({
+    bool? hasJoinedCourses,
+    List<ScheduleItem>? upcomingSchedules,
+    TrainingItem? currentTraining,
+  }) {
+    return DashboardLoaded(
+      hasJoinedCourses: hasJoinedCourses ?? this.hasJoinedCourses,
+      upcomingSchedules: upcomingSchedules ?? this.upcomingSchedules,
+      currentTraining: currentTraining ?? this.currentTraining,
+    );
+  }
+}
+
+class DashboardError extends DashboardState {
+  final String message;
+
+  const DashboardError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final CourseRepository courseRepository;
