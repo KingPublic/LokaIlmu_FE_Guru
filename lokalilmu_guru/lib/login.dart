@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Simulasi login berhasil (ganti dengan pemanggilan backend kalau sudah ada) masih menunggu
                     if (emailOrPhone == "guru@example.com" && password == "password123") {
-                      context.go('/'); 
+                      context.go('/dashboard'); 
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Email atau password salah")),

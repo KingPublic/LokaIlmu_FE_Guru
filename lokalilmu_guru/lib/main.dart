@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
+import 'package:lokalilmu_guru/repositories/course_repository.dart';
 import 'package:lottie/lottie.dart';
-import 'register.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dashboard_page.dart';
 import 'login.dart';
+import 'register.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +21,14 @@ final getIt = GetIt.instance;
 
 void setupDI() {
   getIt.registerLazySingleton(() => OnboardingService());
+
+  // Register repositories
+  getIt.registerLazySingleton(() => CourseRepository());
+  
+  // Register blocs
+  getIt.registerFactory(() => DashboardBloc(
+        courseRepository: getIt<CourseRepository>(),
+      ));
 }
 
 class OnboardingService {
@@ -48,6 +61,13 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/dashboard',
+      builder: (context, state) => BlocProvider(
+        create: (context) => getIt<DashboardBloc>()..add(LoadDashboardEvent()),
+        child: const DashboardPage(),
+      ),
     ),
   ],
 );
