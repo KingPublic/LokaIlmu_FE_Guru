@@ -12,7 +12,7 @@ Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaI
 | ADR006  | [Pemilihan Solusi Navigasi & Routing](ADR006_ROUTE.md)             | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR007  | [Pendekatan Theming dan Styling UI](ADR007_UI.md)                  | ✅ **Accepted** | 06/05/2025  | @KingPublic          |
 | ADR008  | [Strategi Offline Support & Caching](ADR008_OFFLINE.md)            | ✅ **Accepted** | 07/05/2025  | @KingPublic          |
-| ADR009  | [Pemilihan Error Handling & Monitoring](ADR009_SENTRY.md)          | ✅ **Accepted** | 07/05/2025  | @KingPublic          |
+| ADR009  | [Pemilihan Error Handling & Monitoring](ADR009_CustomLogging.md)          | ✅ **Accepted** | 07/05/2025  | @KingPublic          |
 | ADR010  | [Strategi Testing & CI/CD](ADR010_CI_CD.md)                        | 🕒 **Proposed** | 07/05/2025  | @KingPublic          |
 ---
 
