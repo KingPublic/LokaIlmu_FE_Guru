@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     String emailOrPhone = _emailOrPhoneController.text.trim();
                     String password = _passwordController.text;
 
-                    // Simulasi login berhasil (ganti dengan pemanggilan backend kalau sudah ada) masih menunggu
+                    // Simulasi login berhasil (ganti dengan pemanggilan backend kalau sudah ada) masih menunggu(ganti nanti)
                     if (emailOrPhone == "guru@example.com" && password == "password123") {
                       context.go('/dashboard'); 
                     } else {

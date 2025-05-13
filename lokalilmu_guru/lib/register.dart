@@ -151,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       .map((spec) => DropdownMenuItem(value: spec, child: Text(spec)))
                       .toList(),
                   onChanged: (value) => setState(() => selectedSpecialization = value),
-                  validator: (value) => value == null ? 'Pilih satu spesialisasi' : null,
+                  validator: (value) => value == null ? 'Pilih spesialisasi' : null,
                 ),
 
                 const SizedBox(height: 16),
