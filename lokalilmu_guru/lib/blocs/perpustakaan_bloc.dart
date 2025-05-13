@@ -29,11 +29,18 @@ class PerpusState {
 class PerpusCubit extends Cubit<PerpusState> {
   final BookRepository repository;
 
-  PerpusCubit(this.repository)
-      : super(PerpusState(
-            books: repository.getAllBooks(),
-            selectedCategory: 'Semua Subjek',
-            search: ''));
+ PerpusCubit(this.repository)
+    : super(PerpusState(
+        books: [],
+        selectedCategory: 'Semua Subjek',
+        search: '')) {
+  loadBooks(); 
+}
+
+void loadBooks() {
+  final books = repository.getAllBooks();
+  emit(state.copyWith(books: books));
+}
 
   void selectCategory(String category) {
     final filtered = repository.getBooksByCategory(category);

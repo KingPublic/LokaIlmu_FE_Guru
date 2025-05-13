@@ -63,7 +63,7 @@ class AppBottomNavbar extends StatelessWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  currentIndex == 0 ? activeColor : inactiveColor,
+                  currentIndex == 1 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
                 ),
               ),
@@ -75,7 +75,7 @@ class AppBottomNavbar extends StatelessWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  currentIndex == 0 ? activeColor : inactiveColor,
+                  currentIndex == 2 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
                 ),
               ),
@@ -87,7 +87,7 @@ class AppBottomNavbar extends StatelessWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  currentIndex == 0 ? activeColor : inactiveColor,
+                  currentIndex == 3 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
                 ),
               ),

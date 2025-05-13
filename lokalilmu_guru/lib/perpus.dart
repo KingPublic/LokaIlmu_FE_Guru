@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'blocs/perpustakaan_bloc.dart';
 import 'model/book_model.dart';
-import 'repositories/book_repository.dart';
+// import 'repositories/book_repository.dart';
 import 'widgets/common/header.dart';
 
 class PerpusPage extends StatelessWidget {
-  final BookRepository repository;
-
-  const PerpusPage({super.key, required this.repository});
+  const PerpusPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PerpusCubit(repository),
-      child: Scaffold(
+      return Scaffold(
         appBar: AppBar(title: const Text('Perpustakaan')),
         body: BlocBuilder<PerpusCubit, PerpusState>(
           builder: (context, state) {
@@ -33,7 +29,7 @@ class PerpusPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final book = state.books[index];
                       return ListTile(
-                        leading: Image.network(book.imageUrl, width: 50),
+                        leading: Image.network(book.imageUrl, width: 50,errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image)),
                         title: Text(book.title),
                         subtitle: Text(book.author),
                         trailing: Chip(
@@ -56,8 +52,7 @@ class PerpusPage extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
+      );
   }
 
   Color _categoryColor(String cat) {
@@ -89,7 +84,7 @@ class BookDetailPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                Image.network(book.imageUrl, width: 100),
+                Image.network(book.imageUrl, width: 100,errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image)),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(

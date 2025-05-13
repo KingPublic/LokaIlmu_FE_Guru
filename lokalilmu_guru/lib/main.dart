@@ -4,17 +4,29 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
+import 'package:lokalilmu_guru/repositories/book_repository.dart';
+import 'package:lokalilmu_guru/blocs/perpustakaan_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'model/book_model.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'dashboard_page.dart';
 import 'login.dart';
 import 'register.dart';
+import 'perpus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(BookModelAdapter()); // Adapter wajib
+  await Hive.openBox<BookModel>('books');  // Buka box sebelum repository dipakai
   setupDI();
+  await getIt<BookRepository>().initializeBooks();
   runApp(const MyApp());
 }
+
+
 
 final getIt = GetIt.instance;
 
@@ -23,12 +35,19 @@ void setupDI() {
 
   // Register repositories
   getIt.registerLazySingleton(() => CourseRepository());
-  
+
+  getIt.registerLazySingleton(() => BookRepository());
+
   // Register blocs
   getIt.registerFactory(() => DashboardBloc(
         courseRepository: getIt<CourseRepository>(),
       ));
+  
+  getIt.registerFactory(() => PerpusCubit(getIt<BookRepository>()));
+  
+      
 }
+
 
 class OnboardingService {
   Future<bool> isSeen() async {
@@ -68,6 +87,14 @@ final GoRouter _router = GoRouter(
         child: const DashboardPage(),
       ),
     ),
+    GoRoute(
+      path: '/perpustakaan',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<PerpusCubit>(),
+        child: const PerpusPage(), // Tidak perlu inject repository manual lagi
+      ),
+    ),
+
   ],
 );
 

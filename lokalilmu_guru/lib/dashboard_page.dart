@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
 import 'package:lokalilmu_guru/model/schedule_item.dart';
 import 'package:lokalilmu_guru/model/training_item.dart';
@@ -35,10 +36,22 @@ class DashboardPage extends StatelessWidget {
       bottomNavigationBar: AppBottomNavbar(
         currentIndex: 0, // Dashboard adalah tab pertama
         onTap: (index) {
-          // Handle navigasi ke tab lain
-          // Misalnya dengan go_router
-          // if (index != 0) context.go('/other-route');
+        switch (index) {
+          case 0:
+            context.go('/dashboard');
+            break;
+          case 1:
+            context.go('/'); // contoh nama route
+            break;
+          case 2:
+            context.go('/perpustakaan');
+            break;
+          case 3:
+            context.go('/');
+            break;
+        }
         },
+
       ),
     );
   }
