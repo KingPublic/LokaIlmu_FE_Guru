@@ -196,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF012C3D),
+                      backgroundColor: const Color(0xFF0C3450),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -249,9 +249,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFF012C3D)),
+      labelStyle: const TextStyle(color: Color(0xFF0C3450)),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Color(0xFF012C3D)),
+        borderSide: const BorderSide(color: Color(0xFF0C3450)),
         borderRadius: BorderRadius.circular(12),
       ),
       enabledBorder: OutlineInputBorder(
