@@ -50,4 +50,3 @@ Cocok bagi aplikasi kami yang menggunakan pattern MVVM.
 
 - **Injectable** + GetIt: Mengurangi boilerplate melalui anotasi, namun menambah kompleksitas melalui proses code generation.
 - **Manual injection** (tanpa framework): Kurang scalable dan mudah menyebabkan tight coupling.
-- **Provider-based DI**: Cocok untuk proyek kecil, namun kurang fleksibel untuk skala besar dan modular.
