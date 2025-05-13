@@ -40,6 +40,4 @@ Kami memilih menggunakan **go\_router** sebagai solusi navigasi utama.
 
 ## Alternatives Considered
 
-* Navigator 2.0 langsung: lebih fleksibel tapi terlalu verbose.
-* AutoRoute: serupa, namun `go_router` lebih resmi dan terintegrasi dengan ekosistem Flutter.
 * Manual routing dengan Navigator.push dan MaterialPageRoute: Cocok untuk aplikasi kecil, namun tidak scalable. Susah dikelola saat aplikasi tumbuh dan tidak mendukung deep linking/nested route secara deklaratif. (Bagus jika tidak mau repot diawal)
