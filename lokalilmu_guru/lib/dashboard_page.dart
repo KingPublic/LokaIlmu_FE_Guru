@@ -46,7 +46,7 @@ class DashboardPage extends StatelessWidget {
   Widget _buildDashboardContent(BuildContext context, DashboardLoaded state) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -70,20 +70,11 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 12),
             
             // Toggle between empty and filled states
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: state.hasJoinedCourses && state.upcomingSchedules.isNotEmpty
+            state.hasJoinedCourses && state.upcomingSchedules.isNotEmpty
                 ? _buildUpcomingSchedules(state.upcomingSchedules)
                 : const EmptyStateWidget(
                     message: 'Tidak ada pelatihan yang diikuti saat ini...',
                   ),
-            ),
             
             const SizedBox(height: 24),
             
@@ -98,20 +89,11 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 12),
             
             // Toggle between empty and filled states
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: state.hasJoinedCourses && state.currentTraining != null
-                  ? CurrentTrainingWidget(training: state.currentTraining!)
-                  : const EmptyStateWidget(
-                      message: 'Tidak ada pelatihan yang diikuti saat ini...',
-                    ),
-            ),
+            state.hasJoinedCourses && state.currentTraining != null
+                ? CurrentTrainingWidget(training: state.currentTraining!)
+                : const EmptyStateWidget(
+                    message: 'Tidak ada pelatihan yang diikuti saat ini...',
+                  ),
             
             // Demo toggle button (you would remove this in production)
             const SizedBox(height: 40),
@@ -154,64 +136,74 @@ class CurrentTrainingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = training.progressPercentage.clamp(0.0, 1.0);
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.book, color: Colors.black),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    training.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    ),
+            child: const Icon(Icons.book, color: Colors.black),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  training.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTrainingDates(training.startDate, training.endDate) +
-                    ' (${training.completedSessions} sesi)',
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _formatTrainingDates(training.startDate, training.endDate) +
+                  ' (${training.completedSessions} sesi)',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1B3C73)),
+                ),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${(progress * 100).toInt()}%',
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontSize: 12,
+                      fontSize: 10,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                  ),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      '${(progress * 100).toInt()}%',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -255,9 +247,22 @@ class ScheduleItemWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+   Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
