@@ -16,6 +16,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final Color activeColor = const Color(0xFF1B3C73);
+    final Color inactiveColor = Colors.grey;
 
     return AppBar(
       backgroundColor: const Color(0xFFFAFAFA),
@@ -72,7 +73,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  activeColor,
+                  currentIndex == 0 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
                 ),
               ),
@@ -87,7 +88,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                  activeColor,
+                  currentIndex == 0 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
                 ),
               ),
