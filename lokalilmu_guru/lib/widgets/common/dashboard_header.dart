@@ -15,44 +15,58 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color inactiveColor = Colors.grey;
     final Color activeColor = const Color(0xFF1B3C73);
 
     return AppBar(
       backgroundColor: const Color(0xFFFAFAFA),
       elevation: 0,
       automaticallyImplyLeading: false,
-      title: Padding(
-        padding: const EdgeInsets.all(10.0), // ✅ Tambahkan padding di sini
+      titleSpacing: 0, // Menghilangkan spacing default dari title
+      title: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0, // Padding horizontal yang konsisten
+          vertical: 8.0,    // Padding vertical yang lebih kecil
+        ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center, // Memastikan alignment vertikal
           children: [
+            // Avatar dengan ukuran yang konsisten
             const CircleAvatar(
+              radius: 18, // Ukuran yang lebih konsisten
               backgroundColor: Colors.black,
-              child: Icon(Icons.person_outline, color: Colors.white),
+              child: Icon(Icons.person_outline, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Kalvin Richie',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+            // Informasi pengguna
+            Expanded( // Menggunakan Expanded untuk menghindari overflow
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // Meminimalkan ukuran vertikal
+                children: [
+                  const Text(
+                    'Kalvin Richie',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis, // Menangani nama yang panjang
                   ),
-                ),
-                Text(
-                  'Edit Profil',
-                  style: TextStyle(
-                    color: Colors.blue[400],
-                    fontSize: 12,
+                  Text(
+                    'Edit Profil',
+                    style: TextStyle(
+                      color: Colors.blue[400],
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const Spacer(),
+            // Icon buttons dengan padding yang lebih baik
             IconButton(
+              padding: const EdgeInsets.all(8.0), // Padding yang lebih kecil
+              constraints: const BoxConstraints(), // Menghilangkan constraints default
               icon: SvgPicture.asset(
                 'asset/icons/Chat.svg',
                 width: 24,
@@ -64,7 +78,10 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
               ),
               onPressed: onSearchTap,
             ),
+            const SizedBox(width: 8), // Spacing antar icon
             IconButton(
+              padding: const EdgeInsets.all(8.0), // Padding yang lebih kecil
+              constraints: const BoxConstraints(), // Menghilangkan constraints default
               icon: SvgPicture.asset(
                 'asset/icons/Notification.svg',
                 width: 24,
@@ -90,5 +107,5 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(60.0);
+  Size get preferredSize => const Size.fromHeight(56.0); // Ukuran standar AppBar
 }
