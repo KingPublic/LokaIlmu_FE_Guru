@@ -15,11 +15,11 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFAFAFA),
-      appBar: const AppHeader(
-        currentIndex: 0
-        // Tambahkan handler jika diperlukan
-        // onSearchTap: () => {},
-        // onNotificationTap: () => {},
+      appBar: AppHeader(
+        currentIndex: 1,
+        // Tambahkan handler jika diperlukanR
+        onSearchTap: () => {},
+        onNotificationTap: () => {},
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
