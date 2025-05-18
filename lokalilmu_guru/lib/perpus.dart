@@ -12,7 +12,7 @@ class PerpusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: Colors.white,
       bottomNavigationBar: AppBottomNavbar(
         currentIndex: 2,
         onTap: (index) {
@@ -32,19 +32,37 @@ class PerpusPage extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/bukusaya'),
         backgroundColor: const Color(0xFFFECB2E),
-        icon: const Icon(Icons.menu_book_rounded, color: Colors.white),
-        label: const Text('Buku Saya', style: TextStyle(color: Colors.white)),
-        // shape: CircleBorder(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+            Text(
+              'Buku Saya',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
       body: BlocBuilder<PerpusCubit, PerpusState>(
         builder: (context, state) {
           return SafeArea(
             child: Column(
               children: [
-                Padding(
+                // App Bar
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
+                    ),
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
@@ -70,12 +88,14 @@ class PerpusPage extends StatelessWidget {
                   ),
                 ),
 
+                // Search and Categories
                 Header(
                   onSearchChanged: (v) => context.read<PerpusCubit>().searchBooks(v),
                   onCategorySelected: (c) => context.read<PerpusCubit>().selectCategory(c),
                   selectedCategory: state.selectedCategory,
                 ),
 
+                // Book List
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -95,62 +115,92 @@ class PerpusPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
                           ),
-                          padding: const EdgeInsets.all(12),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Book Cover
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
                                   book.imageUrl,
-                                  width: 60,
-                                  height: 80,
+                                  width: 80,
+                                  height: 110,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => Container(
-                                    width: 60,
-                                    height: 80,
+                                    width: 80,
+                                    height: 110,
                                     color: Colors.grey[300],
                                     child: const Icon(Icons.broken_image),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 16),
+                              
+                              // Book Details
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      book.title,
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                    // Title and Category
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            book.title,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(left: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: _categoryColor(book.category),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            book.category,
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      book.author,
-                                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                    
+                                    // Author
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        book.author,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      book.description,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 12, color: Colors.black87, height: 1.3),
+                                    
+                                    // Description
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: Text(
+                                        book.description,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black87,
+                                          height: 1.3,
+                                        ),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: _categoryColor(book.category),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  book.category,
-                                  style: const TextStyle(fontSize: 10, color: Colors.white),
                                 ),
                               ),
                             ],
@@ -189,7 +239,7 @@ class BookDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: Colors.white,
       bottomNavigationBar: AppBottomNavbar(
         currentIndex: 2,
         onTap: (index) {
@@ -208,6 +258,24 @@ class BookDetailPage extends StatelessWidget {
               break;
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/bukusaya'),
+        backgroundColor: const Color(0xFFFECB2E),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+            Text(
+              'Buku Saya',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: ListView(
