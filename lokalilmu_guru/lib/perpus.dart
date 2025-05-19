@@ -32,24 +32,28 @@ class PerpusPage extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: SizedBox(
+        width:65,
+        height:65,
+      child: FloatingActionButton(
         onPressed: () => context.go('/bukusaya'),
         backgroundColor: const Color(0xFFFBCD5F),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(Icons.menu_book_rounded, color: Color(0xFF0C3450), size: 20),
+            Icon(Icons.menu_book_rounded, color: Color(0xFF0C3450), size: 28),
             Text(
               'Buku Saya',
               style: TextStyle(
                 color: Color(0xFF0C3450),
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
         ),
       ),
+    ),
       body: BlocBuilder<PerpusCubit, PerpusState>(
         builder: (context, state) {
           return SafeArea(
@@ -98,7 +102,7 @@ class PerpusPage extends StatelessWidget {
                 // Book List
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     itemCount: state.books.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, i) {
@@ -261,24 +265,28 @@ class BookDetailPage extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: SizedBox(
+        width:65,
+        height:65,
+      child: FloatingActionButton(
         onPressed: () => context.go('/bukusaya'),
-        backgroundColor: const Color(0xFFFECB2E),
+        backgroundColor: const Color(0xFFFBCD5F),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+            Icon(Icons.menu_book_rounded, color: Color(0xFF0C3450), size: 28),
             Text(
               'Buku Saya',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
+                color: Color(0xFF0C3450),
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
         ),
       ),
+    ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -444,11 +452,11 @@ class BookDetailPage extends StatelessWidget {
   Color _categoryColor(String cat) {
     switch (cat) {
       case 'Bahasa':
-        return const Color(0xFFFFC107);
+        return const Color(0xFFFFD900);
       case 'Sains':
-        return const Color(0xFF4CAF50);
+        return const Color(0xFF31DA4B);
       case 'Matematika':
-        return const Color(0xFFEF5350);
+        return const Color(0xFFFF5656);
       case 'Informatika':
         return const Color(0xFF42B1FF);
       default:
