@@ -62,7 +62,8 @@ class Header extends StatelessWidget {
                     )),
                 selected: isSelected,
                 onSelected: (_) => onCategorySelected(cat),
-                selectedColor: const Color(0xFF1B3C73),
+                selectedColor: const Color(0xFF0C3450),
+                checkmarkColor: Colors.white,
                 backgroundColor: const Color(0xFFF0F0F0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

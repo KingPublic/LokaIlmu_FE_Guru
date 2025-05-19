@@ -73,7 +73,7 @@ class AppBottomNavbar extends StatelessWidget {
               icon: SvgPicture.asset(
                 'asset/icons/Perpustakaan.svg',
                 width: 24,
-                height: 24,
+                height: 24, 
                 colorFilter: ColorFilter.mode(
                   currentIndex == 2 ? activeColor : inactiveColor,
                   BlendMode.srcIn,
