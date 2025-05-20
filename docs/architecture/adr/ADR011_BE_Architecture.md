@@ -38,3 +38,7 @@ Diputuskan untuk menggunakan pola arsitektur MVC (Model-View-Controller) sebagai
 ### Mitigasi
 
 * Dokumentasi internal akan disiapkan untuk menyamakan pemahaman tim tentang struktur MVC.
+
+## Alternatives Considered
+
+- **Mircoservice**: Khusus untuk aplikasi dengan skalabilitas besar dan membutuhkan tim besar untuk pengerjaannya.
