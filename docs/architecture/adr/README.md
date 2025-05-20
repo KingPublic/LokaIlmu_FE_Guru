@@ -14,6 +14,8 @@ Daftar keputusan teknis penting yang diambil selama pengembangan aplikasi *LokaI
 | ADR008  | [Strategi Offline Support & Caching](ADR008_OFFLINE.md)            | ✅ **Accepted** | 07/05/2025  | @KingPublic          |
 | ADR009  | [Pemilihan Error Handling & Monitoring](ADR009_CustomLogging.md)          | ✅ **Accepted** | 07/05/2025  | @KingPublic          |
 | ADR010  | [Strategi Testing & CI/CD](ADR010_CI_CD.md)                        | 🕒 **Proposed** | 07/05/2025  | @KingPublic          |
+| ADR011  | [Pemilihan Arsitektur Back-End](ADR011_BE_Architecture.md)                        | ✅ **Accepted** | 13/05/2025  | @KingPublic          |
+| ADR012  | [Pemilihan Bahasa Pemrograman & Framework Back-End](ADR012_BE_LanguagenFramework.md)                        | ✅ **Accepted** | 13/05/2025  | @KingPublic          |
 ---
 
 ## 🔖 Keterangan Badge Status
