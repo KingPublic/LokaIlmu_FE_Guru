@@ -22,6 +22,7 @@ void main() async {
   Hive.registerAdapter(BookModelAdapter()); // Adapter wajib
   await Hive.openBox<BookModel>('books');  // Buka box sebelum repository dipakai
   setupDI();
+  await Hive.box<BookModel>('books').clear();
   await getIt<BookRepository>().initializeBooks();
   runApp(const MyApp());
 }

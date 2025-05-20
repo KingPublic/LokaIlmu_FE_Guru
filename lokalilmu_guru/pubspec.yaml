@@ -103,6 +103,11 @@ flutter:
    - asset/icons/Perpustakaan.svg
    - asset/icons/Chat.svg
    - asset/icons/Notification.svg
+   - asset/images/bindo_bs.png
+   - asset/images/dasar_Inform_paud.png
+   - asset/images/dasar_program.jpeg
+   - asset/images/fisika-bs.png
+   - asset/images/matematika-lanjut.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
