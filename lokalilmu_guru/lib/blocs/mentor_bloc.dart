@@ -1,112 +1,129 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lokalilmu_guru/model/mentor_model.dart';
-import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
 
-abstract class MentorEvent extends Equatable {
-  const MentorEvent();
+import '../../model/mentor_model.dart';
+import '../../repositories/mentor_repository.dart';
 
-  @override
-  List<Object> get props => [];
-}
+// Events
+abstract class MentorEvent {}
 
-class LoadMentorsEvent extends MentorEvent {}
+class InitializeMentorEvent extends MentorEvent {}
 
 class SearchMentorsEvent extends MentorEvent {
   final String query;
-
-  const SearchMentorsEvent(this.query);
-
-  @override
-  List<Object> get props => [query];
+  SearchMentorsEvent(this.query);
 }
 
-class FilterMentorsBySubjectEvent extends MentorEvent {
-  final String subject;
-
-  const FilterMentorsBySubjectEvent(this.subject);
-
-  @override
-  List<Object> get props => [subject];
+class SelectCategoryEvent extends MentorEvent {
+  final String category;
+  SelectCategoryEvent(this.category);
 }
 
-abstract class MentorState extends Equatable {
-  const MentorState();
-  
-  @override
-  List<Object> get props => [];
+// States
+class MentorState {
+  final List<MentorModel> mentors;
+  final List<String> categories;
+  final String searchQuery;
+  final String selectedCategory;
+  final bool isLoading;
+  final String? error;
+
+  MentorState({
+    this.mentors = const [],
+    this.categories = const ['Semua'],
+    this.searchQuery = '',
+    this.selectedCategory = 'Semua',
+    this.isLoading = false,
+    this.error,
+  });
+
+  MentorState copyWith({
+    List<MentorModel>? mentors,
+    List<String>? categories,
+    String? searchQuery,
+    String? selectedCategory,
+    bool? isLoading,
+    String? error,
+  }) {
+    return MentorState(
+      mentors: mentors ?? this.mentors,
+      categories: categories ?? this.categories,
+      searchQuery: searchQuery ?? this.searchQuery,
+      selectedCategory: selectedCategory ?? this.selectedCategory,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
 }
 
-class MentorInitial extends MentorState {}
-
-class MentorLoading extends MentorState {}
-
-class MentorLoaded extends MentorState {
-  final List<Mentor> mentors;
-  
-  const MentorLoaded(this.mentors);
-  
-  @override
-  List<Object> get props => [mentors];
-}
-
-class MentorError extends MentorState {
-  final String message;
-  
-  const MentorError(this.message);
-  
-  @override
-  List<Object> get props => [message];
-}
-
-class MentorBloc extends Bloc<MentorEvent, MentorState> {
+// Cubit
+class MentorCubit extends Cubit<MentorState> {
   final MentorRepository mentorRepository;
-  
-  MentorBloc({required this.mentorRepository}) : super(MentorInitial()) {
-    on<LoadMentorsEvent>(_onLoadMentors);
-    on<SearchMentorsEvent>(_onSearchMentors);
-    on<FilterMentorsBySubjectEvent>(_onFilterMentorsBySubject);
-  }
 
-  Future<void> _onLoadMentors(
-    LoadMentorsEvent event,
-    Emitter<MentorState> emit,
-  ) async {
-    emit(MentorLoading());
-    
+  MentorCubit({required this.mentorRepository}) : super(MentorState());
+
+  // Initialize mentors and categories
+  Future<void> initialize() async {
+    emit(state.copyWith(isLoading: true));
     try {
-      final mentors = await mentorRepository.getMentors();
-      emit(MentorLoaded(mentors));
+      await mentorRepository.initialize();
+      final mentors = await mentorRepository.getAllMentors();
+      final categories = await mentorRepository.getAllCategories();
+      emit(state.copyWith(
+        mentors: mentors,
+        categories: categories,
+        isLoading: false,
+      ));
     } catch (e) {
-      emit(MentorError(e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      ));
     }
   }
 
-  Future<void> _onSearchMentors(
-    SearchMentorsEvent event,
-    Emitter<MentorState> emit,
-  ) async {
-    emit(MentorLoading());
-    
+  // Search mentors by query
+  Future<void> searchMentors(String query) async {
+    emit(state.copyWith(
+      searchQuery: query,
+      isLoading: true,
+    ));
     try {
-      final mentors = await mentorRepository.searchMentors(event.query);
-      emit(MentorLoaded(mentors));
+      final mentors = await mentorRepository.searchMentors(
+        query,
+        state.selectedCategory == 'Semua' ? null : state.selectedCategory,
+      );
+      emit(state.copyWith(
+        mentors: mentors,
+        isLoading: false,
+      ));
     } catch (e) {
-      emit(MentorError(e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      ));
     }
   }
 
-  Future<void> _onFilterMentorsBySubject(
-    FilterMentorsBySubjectEvent event,
-    Emitter<MentorState> emit,
-  ) async {
-    emit(MentorLoading());
-    
+  // Select category
+  Future<void> selectCategory(String category) async {
+    emit(state.copyWith(
+      selectedCategory: category,
+      isLoading: true,
+    ));
     try {
-      final mentors = await mentorRepository.filterMentorsBySubject(event.subject);
-      emit(MentorLoaded(mentors));
+      final mentors = await mentorRepository.searchMentors(
+        state.searchQuery,
+        category == 'Semua' ? null : category,
+      );
+      emit(state.copyWith(
+        mentors: mentors,
+        isLoading: false,
+      ));
     } catch (e) {
-      emit(MentorError(e.toString()));
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      ));
     }
   }
 }

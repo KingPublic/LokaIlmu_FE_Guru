@@ -1,177 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lokalilmu_guru/blocs/mentor_bloc.dart';
-import 'package:lokalilmu_guru/model/mentor_model.dart';
-import 'package:lokalilmu_guru/widgets/common/navbar.dart';
+import 'package:go_router/go_router.dart';
 
-class MentorSearchPage extends StatefulWidget {
-  const MentorSearchPage({Key? key}) : super(key: key);
+import '../../blocs/mentor_bloc.dart';
+import '../../model/mentor_model.dart';
+import '../../widgets/common/header.dart';
+import '../../widgets/common/navbar.dart';
+
+class SearchMentorPage extends StatefulWidget {
+  const SearchMentorPage({Key? key}) : super(key: key);
 
   @override
-  State<MentorSearchPage> createState() => _MentorSearchPageState();
+  State<SearchMentorPage> createState() => _SearchMentorPageState();
 }
 
-class _MentorSearchPageState extends State<MentorSearchPage> {
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedSubject = 'Semua Subjek';
-  
-  final List<String> _subjects = [
-    'Semua Subjek',
-    'Informatika',
-    'Sains',
-    'Matematika',
-    'Bahasa',
-    'Ekonomi',
-  ];
-
+class _SearchMentorPageState extends State<SearchMentorPage> {
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    // Panggil method initialize() langsung, bukan add event
+    context.read<MentorCubit>().initialize();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: const Text(
-          'Cari Mentor',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: const Color(0xFF1B3C73),
-            height: 0.5,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari Mentor...',
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF1B3C73)),
-                ),
-              ),
-              onChanged: (value) {
-                // Trigger search
-                context.read<MentorBloc>().add(SearchMentorsEvent(value));
-              },
-            ),
-          ),
-          
-          // Subject Filter
-          Container(
-            height: 50,
-            color: Colors.white,
-            padding: const EdgeInsets.only(left: 16),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _subjects.length,
-              itemBuilder: (context, index) {
-                final subject = _subjects[index];
-                final isSelected = subject == _selectedSubject;
-                
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(subject),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedSubject = subject;
-                      });
-                      // Filter mentors by subject
-                      context.read<MentorBloc>().add(FilterMentorsBySubjectEvent(subject));
-                    },
-                    backgroundColor: Colors.grey[200],
-                    selectedColor: const Color(0xFF1B3C73),
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      backgroundColor: const Color(0xFFF5F5F5),
+      bottomNavigationBar: const AppBottomNavbar(currentIndex: 1),
+      body: BlocBuilder<MentorCubit, MentorState>(
+        builder: (context, state) {
+          return SafeArea(
+            child: Column(
+              children: [
+                // App Bar
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
-                );
-              },
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            context.go('/dashboard');
+                          }
+                        },
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Cari Mentor',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+                    ],
+                  ),
+                ),
+
+                // Search and Categories
+                Header(
+                  // Panggil method langsung, bukan add event
+                  onSearchChanged: (value) => 
+                      context.read<MentorCubit>().searchMentors(value),
+                  onCategorySelected: (category) => 
+                      context.read<MentorCubit>().selectCategory(category),
+                  selectedCategory: state.selectedCategory,
+                ),
+
+                // Mentor List
+                Expanded(
+                  child: state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : state.mentors.isEmpty
+                          ? const Center(child: Text('Tidak ada mentor yang ditemukan'))
+                          : ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: state.mentors.length,
+                              itemBuilder: (context, index) {
+                                return MentorCard(mentor: state.mentors[index]);
+                              },
+                            ),
+                ),
+              ],
             ),
-          ),
-          
-          // Mentor List
-          Expanded(
-            child: BlocBuilder<MentorBloc, MentorState>(
-              builder: (context, state) {
-                if (state is MentorLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is MentorLoaded) {
-                  final mentors = state.mentors;
-                  
-                  if (mentors.isEmpty) {
-                    return const Center(
-                      child: Text('Tidak ada mentor yang ditemukan'),
-                    );
-                  }
-                  
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: mentors.length,
-                    itemBuilder: (context, index) {
-                      final mentor = mentors[index];
-                      return MentorCard(mentor: mentor);
-                    },
-                  );
-                } else if (state is MentorError) {
-                  return Center(
-                    child: Text('Error: ${state.message}'),
-                  );
-                }
-                
-                return const Center(
-                  child: Text('Cari mentor berdasarkan subjek atau keahlian'),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: AppBottomNavbar(
-        currentIndex: 1, // Cari Mentor tab
-        onTap: (index) {
-          // Handle navigation
+          );
         },
       ),
     );
@@ -179,7 +99,7 @@ class _MentorSearchPageState extends State<MentorSearchPage> {
 }
 
 class MentorCard extends StatelessWidget {
-  final Mentor mentor;
+  final MentorModel mentor;
   
   const MentorCard({
     Key? key,
@@ -207,7 +127,7 @@ class MentorCard extends StatelessWidget {
                 // Mentor photo
                 CircleAvatar(
                   radius: 24,
-                  backgroundImage: NetworkImage(mentor.photoUrl),
+                  backgroundImage: NetworkImage(mentor.imageUrl),
                 ),
                 const SizedBox(width: 12),
                 // Mentor details
@@ -257,7 +177,7 @@ class MentorCard extends StatelessWidget {
             // Subject tags
             Wrap(
               spacing: 8,
-              children: mentor.subjects.map((subject) {
+              children: mentor.categories.map((subject) {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
