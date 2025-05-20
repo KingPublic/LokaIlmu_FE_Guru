@@ -238,14 +238,28 @@ class PerpusPage extends StatelessWidget {
   }
 }
 
-class BookDetailPage extends StatelessWidget {
+class BookDetailPage extends StatefulWidget {
   final BookModel book;
   const BookDetailPage({super.key, required this.book});
 
   @override
+  State<BookDetailPage> createState() => _BookDetailPageState();
+}
+
+class _BookDetailPageState extends State<BookDetailPage> {
+  bool _showFullDescription = false;
+
+  @override
   Widget build(BuildContext context) {
     // Pre-load the image to avoid UI freezes during rendering
-    precacheImage(NetworkImage(book.imageUrl), context);
+    precacheImage(NetworkImage(widget.book.imageUrl), context);
+    
+    // Process description text to limit to approximately 100 words
+    final String fullDescription = widget.book.description;
+    final List<String> words = fullDescription.split(' ');
+    final String truncatedDescription = words.length > 100 
+        ? words.take(100).join(' ') + '...'
+        : fullDescription;
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -293,7 +307,7 @@ class BookDetailPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // App Bar - Fixed with direct GoRouter navigation
+            // App Bar - Exactly matching PerpusPage
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -301,28 +315,27 @@ class BookDetailPage extends StatelessWidget {
                   bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Direct GoRouter navigation to ensure it works
-                      context.pop();
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        context.go('/perpustakaan');
+                      }
                     },
-                    child: const Icon(Icons.arrow_back, color: Colors.black),
                   ),
                   const Expanded(
                     child: Text(
                       'Perpustakaan',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18, 
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  const SizedBox(width: 24),
+                  const SizedBox(width: 48),
                 ],
               ),
             ),
@@ -349,13 +362,13 @@ class BookDetailPage extends StatelessWidget {
                             children: [
                               // Book Cover - Using Hero for smooth transitions
                               Hero(
-                                tag: 'book-${book}',
+                                tag: 'book-${widget.book.title}',
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.asset(
-                                    book.imageUrl,
-                                    width: 100,
-                                    height: 140,
+                                    widget.book.imageUrl,
+                                    width: 120,
+                                    height: 180,
                                     fit: BoxFit.cover,
                                     // Using memory cache
                                     cacheWidth: 200,
@@ -380,11 +393,11 @@ class BookDetailPage extends StatelessWidget {
                                       margin: const EdgeInsets.only(bottom: 8),
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: _categoryColor(book.category),
+                                        color: _categoryColor(widget.book.category),
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: Text(
-                                        book.category,
+                                        widget.book.category,
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
@@ -395,7 +408,7 @@ class BookDetailPage extends StatelessWidget {
                                     
                                     // Title
                                     Text(
-                                      book.title,
+                                      widget.book.title,
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -407,7 +420,7 @@ class BookDetailPage extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
-                                        book.author,
+                                        widget.book.author,
                                         style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey,
@@ -486,31 +499,50 @@ class BookDetailPage extends StatelessWidget {
                           
                           const SizedBox(height: 16),
                           
-                          // Description
-                          Text(
-                            book.description,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              height: 1.5,
-                              color: Colors.black87,
+                          // Description with expandable functionality
+                          AnimatedCrossFade(
+                            firstChild: Text(
+                              truncatedDescription,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: Colors.black87,
+                              ),
                             ),
+                            secondChild: Text(
+                              fullDescription,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            crossFadeState: _showFullDescription 
+                                ? CrossFadeState.showSecond 
+                                : CrossFadeState.showFirst,
+                            duration: const Duration(milliseconds: 300),
                           ),
                           
-                          // "Lihat Semua" link
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: const Text(
-                                'Lihat Semua',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                          // "Lihat Semua" button
+                          if (words.length > 100)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _showFullDescription = !_showFullDescription;
+                                  });
+                                },
+                                child: Text(
+                                  _showFullDescription ? 'Lihat Lebih Sedikit' : 'Lihat Semua',
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           
                           const SizedBox(height: 24),
                           
