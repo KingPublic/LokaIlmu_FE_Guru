@@ -171,7 +171,7 @@ class PerpusPage extends StatelessWidget {
                                             book.category,
                                             style: const TextStyle(
                                               fontSize: 10,
-                                              color: Colors.white,
+                                              color: Colors.white, 
                                             ),
                                           ),
                                         ),
