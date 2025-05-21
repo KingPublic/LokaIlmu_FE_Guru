@@ -25,8 +25,7 @@ class _SearchMentorPageState extends State<SearchMentorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      bottomNavigationBar: const AppBottomNavbar(currentIndex: 1),
+      backgroundColor: const Color(0xFFFAFAFA),
       body: BlocBuilder<MentorCubit, MentorState>(
         builder: (context, state) {
           return SafeArea(
@@ -94,6 +93,7 @@ class _SearchMentorPageState extends State<SearchMentorPage> {
           );
         },
       ),
+      bottomNavigationBar: AppBottomNavbar(currentIndex: 1),
     );
   }
 }

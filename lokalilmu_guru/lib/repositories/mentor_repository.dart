@@ -1,35 +1,40 @@
-import 'package:hive/hive.dart';
-
 import '../model/mentor_model.dart';
 
 class MentorRepository {
-  final String _boxName = 'mentors';
-  late Box<MentorModel> _mentorBox;
+  // Data dummy untuk mentor
+  final List<MentorModel> _mentors = [];
+  
+  // Flag untuk menandai apakah repository sudah diinisialisasi
+  bool _isInitialized = false;
 
   Future<void> initialize() async {
-    if (!Hive.isBoxOpen(_boxName)) {
-      _mentorBox = await Hive.openBox<MentorModel>(_boxName);
-    } else {
-      _mentorBox = Hive.box<MentorModel>(_boxName);
-    }
-
-    // Jika box kosong, isi dengan data dummy
-    if (_mentorBox.isEmpty) {
-      await _initializeMentors();
+    // Hindari inisialisasi berulang
+    if (_isInitialized) return;
+    
+    try {
+      // Inisialisasi data dummy
+      _mentors.clear();
+      _mentors.addAll(_createDummyMentors());
+      _isInitialized = true;
+    } catch (e, stackTrace) {
+      print("Error initializing mentor repository: $e");
+      print("Stack trace: $stackTrace");
+      rethrow;
     }
   }
 
-  Future<void> _initializeMentors() async {
-    final dummyMentors = [
+  List<MentorModel> _createDummyMentors() {
+    return [
       MentorModel(
         id: '1',
         name: 'Dr. Budi Santoso',
-        institution: 'Dosen di UC Makassar',
+        institution: 'Matematika',
         imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
         rating: 4.8,
         reviewCount: 120,
         description: 'Dosen matematika dengan pengalaman mengajar 15 tahun',
         categories: ['Matematika', 'Aljabar', 'Kalkulus'],
+        pricePerSession: 100000,
       ),
       MentorModel(
         id: '2',
@@ -40,6 +45,7 @@ class MentorRepository {
         reviewCount: 98,
         description: 'Guru bahasa Inggris berpengalaman dengan sertifikasi TOEFL',
         categories: ['Bahasa Inggris', 'Grammar', 'Speaking'],
+        pricePerSession: 100000,
       ),
       MentorModel(
         id: '3',
@@ -50,6 +56,7 @@ class MentorRepository {
         reviewCount: 150,
         description: 'Insinyur dan pengajar fisika dengan pendekatan praktis',
         categories: ['Fisika', 'Mekanika', 'Termodinamika'],
+        pricePerSession: 100000,
       ),
       MentorModel(
         id: '4',
@@ -60,6 +67,7 @@ class MentorRepository {
         reviewCount: 110,
         description: 'Software engineer yang mengajar pemrograman web dan mobile',
         categories: ['Pemrograman', 'Web', 'Mobile'],
+        pricePerSession: 100000,
       ),
       MentorModel(
         id: '5',
@@ -70,30 +78,40 @@ class MentorRepository {
         reviewCount: 85,
         description: 'Profesor kimia dengan publikasi internasional',
         categories: ['Kimia', 'Organik', 'Anorganik'],
+        pricePerSession: 100000,
       ),
     ];
-
-    for (var mentor in dummyMentors) {
-      await _mentorBox.put(mentor.id, mentor);
-    }
   }
 
   Future<List<MentorModel>> getAllMentors() async {
-    return _mentorBox.values.toList();
+    // Pastikan repository sudah diinisialisasi
+    if (!_isInitialized) {
+      await initialize();
+    }
+    return _mentors;
   }
 
   Future<List<MentorModel>> searchMentors(String query, String? category) async {
+    // Pastikan repository sudah diinisialisasi
+    if (!_isInitialized) {
+      await initialize();
+    }
+    
     if (query.isEmpty && category == null) {
       return getAllMentors();
     }
 
-    return _mentorBox.values.where((mentor) {
+    return _mentors.where((mentor) {
+      // Cek apakah query cocok dengan nama, expertise, atau deskripsi
       bool matchesQuery = query.isEmpty || 
                          mentor.name.toLowerCase().contains(query.toLowerCase()) ||
-                         mentor.expertise.toLowerCase().contains(query.toLowerCase()) ||
-                         mentor.description.toLowerCase().contains(query.toLowerCase());
+                         mentor.institution.toLowerCase().contains(query.toLowerCase()) ||
+                         mentor.description.toLowerCase().contains(query.toLowerCase()) ||
+                         // Cek apakah query cocok dengan salah satu kategori
+                         mentor.categories.any((cat) => cat.toLowerCase().contains(query.toLowerCase()));
       
-      bool matchesCategory = category == null || category == 'Semua' || 
+      // Cek apakah kategori yang dipilih cocok
+      bool matchesCategory = category == null || category == 'Semua Subjek' || 
                             mentor.categories.contains(category);
       
       return matchesQuery && matchesCategory;
@@ -101,9 +119,14 @@ class MentorRepository {
   }
 
   Future<List<String>> getAllCategories() async {
-    final Set<String> categories = {'Semua'};
+    // Pastikan repository sudah diinisialisasi
+    if (!_isInitialized) {
+      await initialize();
+    }
     
-    for (var mentor in _mentorBox.values) {
+    final Set<String> categories = {'Semua Subjek'};
+    
+    for (var mentor in _mentors) {
       categories.addAll(mentor.categories);
     }
     

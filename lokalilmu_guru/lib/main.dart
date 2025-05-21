@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard_page.dart';
 import 'login.dart';
 import 'model/book_model.dart';
-import 'model/mentor_model.dart';
 import 'perpus.dart';
 import 'register.dart';
 import 'search_mentor.dart';
@@ -27,9 +26,7 @@ void main() async {
   // Inisialisasi Hive
   await Hive.initFlutter();
   Hive.registerAdapter(BookModelAdapter());
-  Hive.registerAdapter(MentorModelAdapter());
   await Hive.openBox<BookModel>('books');
-  await Hive.openBox<MentorModel>('mentors');
   
   // Setup dependency injection
   setupDI();
