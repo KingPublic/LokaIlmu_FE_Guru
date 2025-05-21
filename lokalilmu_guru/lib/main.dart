@@ -16,8 +16,7 @@ import 'dashboard_page.dart';
 import 'login.dart';
 import 'model/book_model.dart';
 import 'perpus.dart';
-import 'register.dart';
-import 'search_mentor.dart';
+import 'bukusaya.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -25,14 +24,11 @@ void main() async {
   
   // Inisialisasi Hive
   await Hive.initFlutter();
-  Hive.registerAdapter(BookModelAdapter());
-  await Hive.openBox<BookModel>('books');
-  
-  // Setup dependency injection
+  Hive.registerAdapter(BookModelAdapter()); // Adapter wajib
+  await Hive.openBox<BookModel>('books');  // Buka box sebelum repository dipakai
+  await Hive.openBox<BookModel>('saved_books'); //Buka untuk yang saved
   setupDI();
-  
-  // Sekarang bisa mengakses service dan repository
-  final hasSeenOnboarding = await getIt<OnboardingService>().isSeen();
+  await Hive.box<BookModel>('books').clear();
   await getIt<BookRepository>().initializeBooks();
   await getIt<MentorRepository>().initialize();
   
@@ -86,45 +82,17 @@ GoRouter router (bool hasSeenOnboarding) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(
-        path: '/register',
-        builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/bukusaya',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<PerpusCubit>(),
+        child: const BukuSayaPage(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/dashboard',
-        builder: (context, state) => BlocProvider(
-          create: (context) => getIt<DashboardBloc>()..add(LoadDashboardEvent()),
-          child: const DashboardPage(),
-        ),
-      ),
-      GoRoute(
-        path: '/perpustakaan',
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<PerpusCubit>(),
-          child: const PerpusPage(), // Tidak perlu inject repository manual lagi
-        ),
-      ),
-      GoRoute(
-        path: '/mentor',
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<MentorCubit>(),
-          child: const SearchMentorPage(), // Tidak perlu inject repository manual lagi
-        ),
-      ),
-      //  GoRoute(
-      //   path: '/mentor',
-      //   builder: (context, state) => BlocProvider(
-      //     create: (_) => getIt<PerpusCubit>(),
-      //     child: const CariMentorPage(), // Tidak perlu inject repository manual lagi
-      //   ),
-      // ),
-    ],
-  );
-}
+    ),
+
+  ],
+);
 
 class MyApp extends StatelessWidget {
   final bool hasSeenOnboarding;

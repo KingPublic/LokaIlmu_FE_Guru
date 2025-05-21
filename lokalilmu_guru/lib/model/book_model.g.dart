@@ -1,10 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'book_model.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class BookModelAdapter extends TypeAdapter<BookModel> {
   @override
@@ -22,13 +16,15 @@ class BookModelAdapter extends TypeAdapter<BookModel> {
       category: fields[2] as String,
       description: fields[3] as String,
       imageUrl: fields[4] as String,
+      filePath: fields.containsKey(5) ? fields[5] as String? : null,
+      isSaved: fields.containsKey(6) ? fields[6] as bool : false,
     );
   }
 
   @override
   void write(BinaryWriter writer, BookModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -38,7 +34,11 @@ class BookModelAdapter extends TypeAdapter<BookModel> {
       ..writeByte(3)
       ..write(obj.description)
       ..writeByte(4)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(5)
+      ..write(obj.filePath)
+      ..writeByte(6)
+      ..write(obj.isSaved);
   }
 
   @override
