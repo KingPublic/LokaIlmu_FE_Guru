@@ -42,6 +42,8 @@ dependencies:
   equatable: ^2.0.5
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  open_file: ^3.5.10
+  path_provider: ^2.1.5
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   # cupertino_icons: ^1.0.8
@@ -108,6 +110,11 @@ flutter:
    - asset/images/dasar_program.jpeg
    - asset/images/fisika-bs.png
    - asset/images/matematika-lanjut.png
+   - asset/file/bindo_bs.pdf
+   - asset/file/dasar_Inform_paud.pdf
+   - asset/file/dasar_program.pdf
+   - asset/file/fisika-bs.pdf
+   - asset/file/matematika-lanjut.pdf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

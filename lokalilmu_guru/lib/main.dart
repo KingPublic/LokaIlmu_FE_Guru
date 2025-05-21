@@ -15,12 +15,14 @@ import 'dashboard_page.dart';
 import 'login.dart';
 import 'register.dart';
 import 'perpus.dart';
+import 'bukusaya.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(BookModelAdapter()); // Adapter wajib
   await Hive.openBox<BookModel>('books');  // Buka box sebelum repository dipakai
+  await Hive.openBox<BookModel>('saved_books'); //Buka untuk yang saved
   setupDI();
   await Hive.box<BookModel>('books').clear();
   await getIt<BookRepository>().initializeBooks();
@@ -93,6 +95,13 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => BlocProvider(
         create: (_) => getIt<PerpusCubit>(),
         child: const PerpusPage(), // Tidak perlu inject repository manual lagi
+      ),
+    ),
+    GoRoute(
+      path: '/bukusaya',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<PerpusCubit>(),
+        child: const BukuSayaPage(),
       ),
     ),
 

@@ -18,6 +18,12 @@ class BookModel extends HiveObject {
 
   @HiveField(4)
   final String imageUrl;
+  
+  @HiveField(5)
+  final String? filePath;
+  
+  @HiveField(6)
+  final bool isSaved;
 
   BookModel({
     required this.title,
@@ -25,5 +31,27 @@ class BookModel extends HiveObject {
     required this.category,
     required this.description,
     required this.imageUrl,
+    this.filePath,
+    this.isSaved = false,
   });
+  
+  BookModel copyWith({
+    String? title,
+    String? author,
+    String? category,
+    String? description,
+    String? imageUrl,
+    String? filePath,
+    bool? isSaved,
+  }) {
+    return BookModel(
+      title: title ?? this.title,
+      author: author ?? this.author,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      filePath: filePath ?? this.filePath,
+      isSaved: isSaved ?? this.isSaved,
+    );
+  }
 }
