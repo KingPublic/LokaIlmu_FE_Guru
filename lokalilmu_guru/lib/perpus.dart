@@ -12,25 +12,25 @@ class PerpusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       bottomNavigationBar: AppBottomNavbar(
-        currentIndex: 2,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/dashboard');
-              break;
-            case 1:
-              context.go('/mentor');
-              break;
-            case 2:
-              context.go('/perpustakaan');
-              break;
-            case 3:
-              context.go('/forum');
-              break;
-          }
-        },
+        currentIndex: 2
+        // onTap: (index) {
+        //   switch (index) {
+        //     case 0:
+        //       context.go('/dashboard');
+        //       break;
+        //     case 1:
+        //       context.go('/mentor');
+        //       break;
+        //     case 2:
+        //       context.go('/perpustakaan');
+        //       break;
+        //     case 3:
+        //       context.go('/forum');
+        //       break;
+          // }
+        // },
       ),
       floatingActionButton: SizedBox(
         width:65,
@@ -278,23 +278,23 @@ class _BookDetailPageState extends State<BookDetailPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: AppBottomNavbar(
-        currentIndex: 2,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/dashboard');
-              break;
-            case 1:
-              context.go('/mentor');
-              break;
-            case 2:
-              context.go('/perpustakaan');
-              break;
-            case 3:
-              context.go('/forum');
-              break;
-          }
-        },
+        currentIndex: 2
+        // onTap: (index) {
+        //   switch (index) {
+        //     case 0:
+        //       context.go('/dashboard');
+        //       break;
+        //     case 1:
+        //       context.go('/mentor');
+        //       break;
+        //     case 2:
+        //       context.go('/perpustakaan');
+        //       break;
+        //     case 3:
+        //       context.go('/forum');
+        //       break;
+        //   }
+        // },
       ),
       floatingActionButton: SizedBox(
         width: 65,

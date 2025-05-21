@@ -2,23 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
-import 'package:lokalilmu_guru/repositories/course_repository.dart';
-import 'package:lokalilmu_guru/repositories/book_repository.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lokalilmu_guru/blocs/dashboard_bloc.dart';
+import 'package:lokalilmu_guru/blocs/mentor_bloc.dart';
 import 'package:lokalilmu_guru/blocs/perpustakaan_bloc.dart';
+import 'package:lokalilmu_guru/repositories/book_repository.dart';
+import 'package:lokalilmu_guru/repositories/course_repository.dart';
+import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'model/book_model.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 import 'dashboard_page.dart';
 import 'login.dart';
-import 'register.dart';
+import 'model/book_model.dart';
 import 'perpus.dart';
 import 'bukusaya.dart';
 
 void main() async {
+  // Inisialisasi Flutter binding sekali saja
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inisialisasi Hive
   await Hive.initFlutter();
   Hive.registerAdapter(BookModelAdapter()); // Adapter wajib
   await Hive.openBox<BookModel>('books');  // Buka box sebelum repository dipakai
@@ -26,10 +30,11 @@ void main() async {
   setupDI();
   await Hive.box<BookModel>('books').clear();
   await getIt<BookRepository>().initializeBooks();
-  runApp(const MyApp());
+  await getIt<MentorRepository>().initialize();
+  
+  // Jalankan aplikasi
+  runApp(MyApp(hasSeenOnboarding: hasSeenOnboarding));
 }
-
-
 
 final getIt = GetIt.instance;
 
@@ -41,14 +46,15 @@ void setupDI() {
 
   getIt.registerLazySingleton(() => BookRepository());
 
-  // Register blocs
+  getIt.registerLazySingleton(() => MentorRepository()); 
+
   getIt.registerFactory(() => DashboardBloc(
-        courseRepository: getIt<CourseRepository>(),
-      ));
+        courseRepository: getIt<CourseRepository>()));
   
   getIt.registerFactory(() => PerpusCubit(getIt<BookRepository>()));
   
-      
+  getIt.registerFactory(() => MentorCubit(
+        mentorRepository: getIt<MentorRepository>()));
 }
 
 
@@ -64,37 +70,17 @@ class OnboardingService {
   }
 }
 
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashWrapper(),
-    ),
-    GoRoute(
-      path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => const RegisterScreen(),
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: '/dashboard',
-      builder: (context, state) => BlocProvider(
-        create: (context) => getIt<DashboardBloc>()..add(LoadDashboardEvent()),
-        child: const DashboardPage(),
+GoRouter router (bool hasSeenOnboarding) {
+  return GoRouter(
+    initialLocation: hasSeenOnboarding ? '/dashboard' : '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const SplashWrapper(),
       ),
-    ),
-    GoRoute(
-      path: '/perpustakaan',
-      builder: (context, state) => BlocProvider(
-        create: (_) => getIt<PerpusCubit>(),
-        child: const PerpusPage(), // Tidak perlu inject repository manual lagi
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
     ),
     GoRoute(
@@ -109,13 +95,18 @@ final GoRouter _router = GoRouter(
 );
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasSeenOnboarding;
+  
+  const MyApp({
+    Key? key,
+    required this.hasSeenOnboarding,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: _router,
+      routerConfig: router(hasSeenOnboarding),
       title: 'LokaIlmu',
       theme: ThemeData(
         fontFamily: 'Poppins',

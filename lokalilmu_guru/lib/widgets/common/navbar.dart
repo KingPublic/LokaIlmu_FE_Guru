@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class AppBottomNavbar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  // final Function(int) onTap;
 
   const AppBottomNavbar({
     Key? key,
     required this.currentIndex,
-    required this.onTap,
+    // required this.onTap,
   }) : super(key: key);
 
   @override
@@ -39,7 +40,16 @@ class AppBottomNavbar extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           currentIndex: currentIndex,
-          onTap: onTap,
+          onTap: (index) {
+            // // Jika onTap disediakan, gunakan itu
+            // if (onTap != null) {
+            //   onTap!(index);
+            //   return;
+            // }
+            
+            // Jika tidak, gunakan navigasi default
+            _navigateToPage(context, index);
+          },
           selectedItemColor: activeColor,
           unselectedItemColor: inactiveColor,
           selectedLabelStyle: TextStyle(fontSize: 8), // size when selected
@@ -97,5 +107,31 @@ class AppBottomNavbar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _navigateToPage(BuildContext context, int index) {
+    // Hindari navigasi jika sudah berada di halaman yang sama
+    if (index == currentIndex) return;
+    
+    switch (index) {
+      case 0:
+        // Navigasi ke Beranda
+        context.go('/dashboard');
+        break;
+      case 1:
+        // Navigasi ke Cari Mentor
+        context.go('/mentor');
+        break;
+      case 2:
+        // Navigasi ke Perpustakaan
+        // Ganti dengan route yang sesuai
+        context.go('/perpustakaan');
+        break;
+      case 3:
+        // Navigasi ke Forum
+        // Ganti dengan route yang sesuai
+        context.go('/forum');
+        break;
+    }
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
-import 'package:lokalilmu_guru/blocs/dashboard/dashboard_bloc.dart';
+import 'package:lokalilmu_guru/blocs/dashboard_bloc.dart';
 import 'package:lokalilmu_guru/model/schedule_item.dart';
 import 'package:lokalilmu_guru/model/training_item.dart';
 import 'package:lokalilmu_guru/widgets/common/dashboard_header.dart';
@@ -34,24 +33,23 @@ class DashboardPage extends StatelessWidget {
         },
       ),
       bottomNavigationBar: AppBottomNavbar(
-        currentIndex: 0, // Dashboard adalah tab pertama
-        onTap: (index) {
-        switch (index) {
-          case 0:
-            context.go('/dashboard');
-            break;
-          case 1:
-            context.go('/'); // contoh nama route
-            break;
-          case 2:
-            context.go('/perpustakaan');
-            break;
-          case 3:
-            context.go('/');
-            break;
-        }
-        },
-
+        currentIndex: 0 // Dashboard adalah tab pertama
+        // onTap: (index) {
+        // switch (index) {
+        //   case 0:
+        //     context.go('/dashboard');
+        //     break;
+        //   case 1:
+        //     context.go('/mentor-search'); // contoh nama route
+        //     break;
+        //   case 2:
+        //     context.go('/perpustakaan');
+        //     break;
+        //   case 3:
+        //     context.go('/');
+        //     break;
+        // }
+        // },
       ),
     );
   }
