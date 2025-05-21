@@ -53,22 +53,22 @@ class _BukuSayaPageState extends State<BukuSayaPage> {
       // Tidak ada floatingActionButton sesuai permintaan
       bottomNavigationBar: AppBottomNavbar(
         currentIndex: 2, // Perpustakaan tab aktif sesuai gambar
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/dashboard');
-              break;
-            case 1:
-              context.go('/mentor');
-              break;
-            case 2:
-              context.go('/perpustakaan');
-              break;
-            case 3:
-              context.go('/forum');
-              break;
-          }
-        },
+        // onTap: (index) {
+        //   switch (index) {
+        //     case 0:
+        //       context.go('/dashboard');
+        //       break;
+        //     case 1:
+        //       context.go('/mentor');
+        //       break;
+        //     case 2:
+        //       context.go('/perpustakaan');
+        //       break;
+        //     case 3:
+        //       context.go('/forum');
+        //       break;
+        //   }
+        // },
       ),
       body: BlocConsumer<PerpusCubit, PerpusState>(
         listener: (context, state) {

@@ -11,7 +11,7 @@ import 'package:lokalilmu_guru/repositories/course_repository.dart';
 import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'register.dart';
 import 'dashboard_page.dart';
 import 'login.dart';
 import 'model/book_model.dart';
@@ -31,6 +31,9 @@ void main() async {
   await Hive.box<BookModel>('books').clear();
   await getIt<BookRepository>().initializeBooks();
   await getIt<MentorRepository>().initialize();
+  
+  // Cek status onboarding
+  final hasSeenOnboarding = await getIt<OnboardingService>().isSeen();
   
   // Jalankan aplikasi
   runApp(MyApp(hasSeenOnboarding: hasSeenOnboarding));
@@ -70,17 +73,37 @@ class OnboardingService {
   }
 }
 
-GoRouter router (bool hasSeenOnboarding) {
-  return GoRouter(
-    initialLocation: hasSeenOnboarding ? '/dashboard' : '/',
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashWrapper(),
+final GoRouter _router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashWrapper(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/dashboard',
+      builder: (context, state) => BlocProvider(
+        create: (context) => getIt<DashboardBloc>()..add(LoadDashboardEvent()),
+        child: const DashboardPage(),
       ),
-      GoRoute(
-        path: '/onboarding',
-        builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/perpustakaan',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<PerpusCubit>(),
+        child: const PerpusPage(), // Tidak perlu inject repository manual lagi
       ),
     ),
     GoRoute(
@@ -106,7 +129,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: router(hasSeenOnboarding),
+      routerConfig: _router,
       title: 'LokaIlmu',
       theme: ThemeData(
         fontFamily: 'Poppins',
@@ -115,6 +138,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
 class SplashWrapper extends StatelessWidget {
   const SplashWrapper({super.key});
