@@ -3,20 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lokalilmu_guru/blocs/auth_bloc.dart';
 import 'package:lokalilmu_guru/blocs/dashboard_bloc.dart';
 import 'package:lokalilmu_guru/blocs/mentor_bloc.dart';
 import 'package:lokalilmu_guru/blocs/perpustakaan_bloc.dart';
+import 'package:lokalilmu_guru/repositories/auth_repository.dart';
 import 'package:lokalilmu_guru/repositories/book_repository.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
 import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'register.dart';
+
+import 'bukusaya.dart';
 import 'dashboard_page.dart';
 import 'login.dart';
 import 'model/book_model.dart';
 import 'perpus.dart';
-import 'bukusaya.dart';
+import 'register.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -117,28 +120,55 @@ final GoRouter _router = GoRouter(
   ],
 );
 
+// class MyApp extends StatelessWidget {
+//   final bool hasSeenOnboarding;
+  
+//   const MyApp({
+//     Key? key,
+//     required this.hasSeenOnboarding,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+    
+//     return MaterialApp.router(
+//       debugShowCheckedModeBanner: false,
+//       routerConfig: _router,
+//       title: 'LokaIlmu',
+//       theme: ThemeData(
+//         fontFamily: 'Poppins',
+//         textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Poppins'),
+//       ),
+//     );
+//   }
+// }
+
 class MyApp extends StatelessWidget {
   final bool hasSeenOnboarding;
-  
-  const MyApp({
-    Key? key,
-    required this.hasSeenOnboarding,
-  }) : super(key: key);
+
+  const MyApp({Key? key, required this.hasSeenOnboarding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: _router,
-      title: 'LokaIlmu',
-      theme: ThemeData(
+    final authRepository = AuthRepository(baseUrl: 'http://127.0.0.1:8000');
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (_) => AuthBloc(authRepository: authRepository),
+        ),
+      ],
+      child: MaterialApp.router(
+        title: 'LokaIlmu',
+        theme: ThemeData(
         fontFamily: 'Poppins',
         textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Poppins'),
+      ),
+        routerConfig: _router,
       ),
     );
   }
 }
-
 
 class SplashWrapper extends StatelessWidget {
   const SplashWrapper({super.key});

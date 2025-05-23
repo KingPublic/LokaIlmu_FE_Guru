@@ -22,6 +22,21 @@ class RegisterModel {
     required this.spesialisasi,
     required this.ktpPath,
   });
+
+  factory RegisterModel.fromJson(Map<String, dynamic> json) {
+    return RegisterModel(
+      namaLengkap: json['namaLengkap'],
+      email: json['email'],
+      password: json['password'],
+      confirmPassword: json['confirmPassword'],
+      nip: json['nip'],
+      namaSekolah: json['namaSekolah'],
+      npsn: json['npsn'],
+      tingkatPengajar: json['tingkatPengajar'],
+      spesialisasi: json['spesialisasi'],
+      ktpPath: json['ktpPath'],
+    );
+  }
 }
 
 class LoginModel {

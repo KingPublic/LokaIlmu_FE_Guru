@@ -1,8 +1,12 @@
+import 'dart:convert'; // Untuk menggunakan jsonEncode
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lokalilmu_guru/blocs/auth_bloc.dart';
 import 'package:path/path.dart' as p;
 
 class RegisterScreen extends StatefulWidget {
@@ -33,8 +37,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ];
 
   File? ktpFile;
+  bool _isSubmitting = false;
+  Map<String, String> _fieldErrors = {};
 
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _nipController.dispose();
+    _sekolahController.dispose();
+    _npsnController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickKTP() async {
     showModalBottomSheet(
@@ -103,9 +121,118 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  void _handleRegister() {
+    setState(() {
+      _fieldErrors = {};
+    });
+
+    if (_formKey.currentState!.validate()) {
+      if (ktpFile == null) {
+        setState(() {}); // Trigger rebuild to show KTP validation error
+        return;
+      }
+
+      if (_passwordController.text != _confirmPasswordController.text) {
+        _showError("Password dan konfirmasi password tidak cocok");
+        return;
+      }
+
+      // if (_selectedDate == null) {
+      //   _showError("Tanggal lahir harus diisi");
+      //   return;
+      // }
+
+      // Create registration data matching the Laravel controller requirements
+      final Map<String, dynamic> registrationData = {
+        'nama_lengkap': _namaController.text,
+        'email': _emailController.text,
+        'password': _passwordController.text,
+        'NIP': _nipController.text,
+        'NPSN': _npsnController.text,
+        'tingkatPengajar': selectedLevel,
+        'tglLahir' : '2000-01-01',
+      };
+
+      // TAMBAHAN: Print data JSON yang akan dikirim ke API untuk debugging
+      _printRegistrationData(registrationData, ktpFile!);
+
+      // Dispatch register event to the BLoC
+      context.read<AuthBloc>().add(
+        RegisterTeacherEvent(
+          registrationData: registrationData,
+          ktpFile: ktpFile!,
+        ),
+      );
+    }
+  }
+
+  void _printRegistrationData(Map<String, dynamic> data, File ktpFile) {
+    // Format JSON dengan indentasi untuk memudahkan pembacaan
+    final prettyJson = const JsonEncoder.withIndent('  ').convert(data);
+    
+    // Cetak data registrasi
+    debugPrint('\n=================== DATA REGISTRASI ===================');
+    debugPrint('Data yang akan dikirim ke API:');
+    debugPrint(prettyJson);
+    
+    // Cetak informasi file KTP
+    debugPrint('\nInformasi File KTP:');
+    debugPrint('Path: ${ktpFile.path}');
+    debugPrint('Nama File: ${p.basename(ktpFile.path)}');
+    debugPrint('Ekstensi: ${p.extension(ktpFile.path)}');
+    debugPrint('Ukuran: ${(ktpFile.lengthSync() / 1024).toStringAsFixed(2)} KB');
+    debugPrint('=======================================================\n');
+    
+    // Tampilkan juga di SnackBar untuk memudahkan debugging di perangkat
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Data registrasi dicetak di konsol'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          setState(() => _isSubmitting = true);
+        } else {
+          setState(() => _isSubmitting = false);
+        }
+
+        if (state is AuthRegistrationSuccess) {
+          // Registration successful
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+          );
+          // Navigate to login page
+          context.go('/login');
+        } else if (state is AuthError) {
+          // Show error message
+          _showError(state.message);
+          
+          // Handle validation errors from the server
+          if (state.errors != null) {
+            Map<String, String> fieldErrors = {};
+            
+            state.errors!.forEach((key, value) {
+              if (value is List) {
+                fieldErrors[key] = value.first.toString();
+              } else {
+                fieldErrors[key] = value.toString();
+              }
+            });
+            
+            setState(() {
+              _fieldErrors = fieldErrors;
+            });
+          }
+        }
+      },
+    builder: (context, state) { 
+      return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -201,16 +328,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        if (ktpFile == null) {
-                          setState(() {}); 
-                          return;
-                        }
-                        context.push('/login');
-                      }
-                    },
-                    child: const Text("Daftar", style: TextStyle(color: Colors.white)),
+                    onPressed: _isSubmitting ? null : _handleRegister,
+                        child: _isSubmitting
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text("Daftar", style: TextStyle(color: Colors.white)),
                   ),
                 ),
 
@@ -232,6 +353,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  });
   }
 
   Widget _buildTextField(String label, {bool obscure = false, TextEditingController? controller}) {
