@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:lokalilmu_guru/model/auth_response.dart';
-import 'package:path/path.dart' as p;
 
 class AuthRepository {
   final String baseUrl;
@@ -14,25 +12,33 @@ class AuthRepository {
   Future<AuthResponse> loginTeacher(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/login-guru'),
+        Uri.parse('http://127.0.0.1:8000/api/login-guru'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': email,
+          'email_or_hp': email,
           'password': password,
         }),
       );
 
+      debugPrint("Status Code: ${response.statusCode}");
+      debugPrint("Response Body: ${response.body}");
+
       final responseData = jsonDecode(response.body);
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = responseData['data'];
         return AuthResponse.fromJson({
-          ...responseData,
           'success': true,
+          'message': responseData['message'],
+          'user': data['user'],
+          'profil_guru': data['profil_guru'],
+          'token': data['token'],
         });
       } else {
         return AuthResponse.fromJson({
-          ...responseData,
           'success': false,
+          'message': responseData['message'],
+          'errors': responseData['errors'],
         });
       }
     } catch (e) {
@@ -43,7 +49,7 @@ class AuthRepository {
     }
   }
 
-  Future<AuthResponse> registerTeacher(Map<String, dynamic> data, File ktpFile) async {
+  Future<AuthResponse> registerTeacher(Map<String, dynamic> data) async {//, File ktpFile) async {
     try {
       // Create multipart request
       final request = http.MultipartRequest(
@@ -62,20 +68,20 @@ class AuthRepository {
       request.fields['tgl_lahir'] = data['tgl_lahir'] ?? '';
       
       // Add KTP file if provided
-      if (ktpFile.path.isNotEmpty) {
-        final fileExtension = p.extension(ktpFile.path).toLowerCase();
-        final mimeType = fileExtension == '.pdf' 
-            ? 'application/pdf' 
-            : 'image/${fileExtension.replaceAll('.', '')}';
+      // if (ktpFile.path.isNotEmpty) {
+      //   final fileExtension = p.extension(ktpFile.path).toLowerCase();
+      //   final mimeType = fileExtension == '.pdf' 
+      //       ? 'application/pdf' 
+      //       : 'image/${fileExtension.replaceAll('.', '')}';
         
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'pathKTP',
-            ktpFile.path,
-            contentType: MediaType.parse(mimeType),
-          ),
-        );
-      }
+      //   request.files.add(
+      //     await http.MultipartFile.fromPath(
+      //       'pathKTP',
+      //       ktpFile.path,
+      //       contentType: MediaType.parse(mimeType),
+      //     ),
+      //   );
+      // }
 
       // Send request
       final streamedResponse = await request.send();

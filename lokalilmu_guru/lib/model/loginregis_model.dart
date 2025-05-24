@@ -9,6 +9,7 @@ class RegisterModel {
   final String tingkatPengajar;
   final String spesialisasi;
   final String ktpPath;
+  final DateTime tglLahir;
 
   RegisterModel({
     required this.namaLengkap,
@@ -21,6 +22,7 @@ class RegisterModel {
     required this.tingkatPengajar,
     required this.spesialisasi,
     required this.ktpPath,
+    required this.tglLahir,
   });
 
   factory RegisterModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class RegisterModel {
       tingkatPengajar: json['tingkatPengajar'],
       spesialisasi: json['spesialisasi'],
       ktpPath: json['ktpPath'],
+      tglLahir: json['tglLahir'],
     );
   }
 }
@@ -47,4 +50,11 @@ class LoginModel {
     required this.emailOrPhone,
     required this.password,
   });
+
+  factory LoginModel.fromJson(Map<String, dynamic> json) {
+    return LoginModel(
+      emailOrPhone: json['emailOrPhone'],
+      password: json['password'],
+    );
+  }
 }
