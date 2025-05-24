@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lokalilmu_guru/blocs/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
+  bool _isSubmitting = false;
+  Map<String, String> _fieldErrors = {};
   // Controller opsional jika ingin ambil nilai text
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -90,21 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    String emailOrPhone = _emailOrPhoneController.text.trim();
-                    String password = _passwordController.text;
-
-                    // Simulasi login berhasil (ganti dengan pemanggilan backend kalau sudah ada) masih menunggu(ganti nanti)
-                    if (emailOrPhone == "guru@example.com" && password == "password123") {
-                      context.go('/dashboard'); 
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Email atau password salah")),
-                      );
-                    }
-                  }
-                },
+                    onPressed: _handleLogin,
 
                     child: const Text(
                       "Masuk",
@@ -143,12 +132,57 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      final loginData = {
+        'emailOrPhone': _emailOrPhoneController.text,
+        'password': _passwordController.text,
+      };
+
+      // Optional: cetak data login untuk debugging
+      print('Login Data: $loginData');
+
+      context.read<AuthBloc>().add(
+        LoginTeacherEvent(
+          emailOrPhone: _emailOrPhoneController.text.trim(),
+          password: _passwordController.text,
+        ),
+      );
+    }
+  }
+
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   /// Custom reusable TextField builder dengan warna custom
   Widget _buildTextField({
     required String label,
     bool obscure = false,
     TextEditingController? controller,
   }) {
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          setState(() => _isSubmitting = true);
+        } else {
+          setState(() => _isSubmitting = false);
+        }
+
+        if (state is AuthAuthenticated) {
+          // Login successful
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login berhasil!')),
+          );
+          // Navigate to login page
+          context.go('/dashboard');
+        } else if (state is AuthError) {
+          // Show error message
+          _showError(state.message);
+        }
+      },
+  builder: (context, state) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -177,5 +211,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  },);
   }
 }

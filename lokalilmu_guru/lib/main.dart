@@ -11,6 +11,7 @@ import 'package:lokalilmu_guru/repositories/auth_repository.dart';
 import 'package:lokalilmu_guru/repositories/book_repository.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
 import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
+import 'package:lokalilmu_guru/search_mentor.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -107,6 +108,13 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => BlocProvider(
         create: (_) => getIt<PerpusCubit>(),
         child: const PerpusPage(), // Tidak perlu inject repository manual lagi
+      ),
+    ),
+    GoRoute(
+      path: '/mentor',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<MentorCubit>(),
+        child: const SearchMentorPage(), // Tidak perlu inject repository manual lagi
       ),
     ),
     GoRoute(
