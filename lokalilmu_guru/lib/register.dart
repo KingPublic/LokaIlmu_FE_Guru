@@ -127,10 +127,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     if (_formKey.currentState!.validate()) {
-      if (ktpFile == null) {
-        setState(() {}); // Trigger rebuild to show KTP validation error
-        return;
-      }
+      // if (ktpFile == null) {
+      //   setState(() {}); // Trigger rebuild to show KTP validation error
+      //   return;
+      // }
 
       if (_passwordController.text != _confirmPasswordController.text) {
         _showError("Password dan konfirmasi password tidak cocok");
@@ -146,27 +146,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final Map<String, dynamic> registrationData = {
         'nama_lengkap': _namaController.text,
         'email': _emailController.text,
+        'no_hp': '08012345678', // Hardcoded for testing, replace with _emailController.text
         'password': _passwordController.text,
-        'NIP': _nipController.text,
-        'NPSN': _npsnController.text,
+        'NPSN':  _npsnController.text,
+        'NUPTK': _nipController.text,
         'tingkatPengajar': selectedLevel,
-        'tglLahir' : '2000-01-01',
+        // 'spesialisasi': selectedSpecialization,
+        'tgl_lahir' : '2000-01-01',
       };
 
       // TAMBAHAN: Print data JSON yang akan dikirim ke API untuk debugging
-      _printRegistrationData(registrationData, ktpFile!);
+      // _printRegistrationData(registrationData, ktpFile!);
+      _printRegistrationData(registrationData);
 
       // Dispatch register event to the BLoC
       context.read<AuthBloc>().add(
         RegisterTeacherEvent(
           registrationData: registrationData,
-          ktpFile: ktpFile!,
+          // ktpFile: ktpFile!,
         ),
       );
     }
   }
 
-  void _printRegistrationData(Map<String, dynamic> data, File ktpFile) {
+  void _printRegistrationData(Map<String, dynamic> data) { //, File ktpFile) {
     // Format JSON dengan indentasi untuk memudahkan pembacaan
     final prettyJson = const JsonEncoder.withIndent('  ').convert(data);
     
@@ -176,12 +179,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     debugPrint(prettyJson);
     
     // Cetak informasi file KTP
-    debugPrint('\nInformasi File KTP:');
-    debugPrint('Path: ${ktpFile.path}');
-    debugPrint('Nama File: ${p.basename(ktpFile.path)}');
-    debugPrint('Ekstensi: ${p.extension(ktpFile.path)}');
-    debugPrint('Ukuran: ${(ktpFile.lengthSync() / 1024).toStringAsFixed(2)} KB');
-    debugPrint('=======================================================\n');
+    // debugPrint('\nInformasi File KTP:');
+    // debugPrint('Path: ${ktpFile.path}');
+    // debugPrint('Nama File: ${p.basename(ktpFile.path)}');
+    // debugPrint('Ekstensi: ${p.extension(ktpFile.path)}');
+    // debugPrint('Ukuran: ${(ktpFile.lengthSync() / 1024).toStringAsFixed(2)} KB');
+    // debugPrint('=======================================================\n');
     
     // Tampilkan juga di SnackBar untuk memudahkan debugging di perangkat
     ScaffoldMessenger.of(context).showSnackBar(
@@ -305,17 +308,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                if (ktpFile == null) // validasi visual untuk file KTP
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Silakan upload gambar/file KTP*',
-                        style: TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                    ),
-                  ),
+                // if (ktpFile == null) // validasi visual untuk file KTP
+                //   const Padding(
+                //     padding: EdgeInsets.only(top: 8),
+                //     child: Align(
+                //       alignment: Alignment.centerLeft,
+                //       child: Text(
+                //         'Silakan upload gambar/file KTP*',
+                //         style: TextStyle(color: Colors.red, fontSize: 12),
+                //       ),
+                //     ),
+                //   ),
 
                 const SizedBox(height: 24),
                 SizedBox(
@@ -328,7 +331,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: _isSubmitting ? null : _handleRegister,
+                    onPressed: _isSubmitting
+                      ? null
+                      : () {
+                          setState(() => _isSubmitting = true);
+                          _handleRegister();
+                        },
                         child: _isSubmitting
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text("Daftar", style: TextStyle(color: Colors.white)),
@@ -363,7 +371,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         controller: controller,
         obscureText: obscure,
         decoration: _inputDecoration(label),
-        validator: (value) => value == null || value.isEmpty ? 'Isi $label terlebih dahulu' : null,
+        validator: (value) {
+          // Jika label adalah "Path KTP", field ini tidak wajib
+          if (label.toLowerCase() == 'path ktp') return null;
+          // Validasi default untuk field lain
+          return value == null || value.isEmpty ? 'Isi $label terlebih dahulu' : null;
+        },
       ),
     );
   }

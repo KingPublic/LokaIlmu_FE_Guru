@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lokalilmu_guru/model/loginregis_model.dart';
 import 'package:lokalilmu_guru/repositories/auth_repository.dart';
@@ -9,19 +7,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class AuthEvent {}
 
 class LoginTeacherEvent extends AuthEvent {
-  final String email;
+  final String emailOrPhone;
   final String password;
 
-  LoginTeacherEvent({required this.email, required this.password});
+  LoginTeacherEvent({required this.emailOrPhone, required this.password});
 }
 
 class RegisterTeacherEvent extends AuthEvent {
   final Map<String, dynamic> registrationData;
-  final File ktpFile;
+  // final File ktpFile;
 
   RegisterTeacherEvent({
     required this.registrationData,
-    required this.ktpFile,
+    // required this.ktpFile,
   });
 }
 
@@ -86,7 +84,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     
     try {
       final response = await authRepository.loginTeacher(
-        event.email,
+        event.emailOrPhone,
         event.password,
       );
 
@@ -120,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final response = await authRepository.registerTeacher(
         event.registrationData,
-        event.ktpFile,
+        // event.ktpFile,
       );
 
       if (response.success) {
