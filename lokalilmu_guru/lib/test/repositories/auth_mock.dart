@@ -1,5 +1,4 @@
 // import 'dart:convert';
-
 // import 'package:flutter_test/flutter_test.dart';
 // import 'package:http/http.dart' as http;
 // import 'package:lokalilmu_guru/model/auth_response.dart';
@@ -7,29 +6,29 @@
 // import 'package:mockito/annotations.dart';
 // import 'package:mockito/mockito.dart';
 
-// import 'auth_mock.mocks.dart';
+// import 'package:lokalilmu_guru/test/repositories/auth_mock.dart';
 
 // @GenerateMocks([http.Client])
 // void main() {
-//   group('AuthRepository loginTeacher', () {
-//     late AuthRepository authRepository;
+//   group('AuthRepository', () {
 //     late MockClient mockClient;
+//     late AuthRepository repository;
 
 //     setUp(() {
 //       mockClient = MockClient();
-//       authRepository = AuthRepository(baseUrl: 'http://127.0.0.1:8000', client: mockClient);
+//       repository = AuthRepository(baseUrl: 'http://127.0.0.1:8000');
 //     });
 
-//     test('returns AuthResponse with success on valid login', () async {
-//       final mockResponseData = {
+//     test('loginTeacher returns success AuthResponse when status code is 200', () async {
+//       // Arrange
+//       const email = 'guru@example.com';
+//       const password = 'password123';
+//       final mockResponse = {
 //         'message': 'Login berhasil',
 //         'data': {
-//           'user': {'id': 1, 'email': 'john.doe@example.com'},
-//           'profil_guru': {
-//             'namaLengkap': 'John Doe',
-//             'email': 'john.doe@example.com',
-//           },
-//           'token': 'abc123token',
+//           'user': {'id': 1, 'name': 'Guru'},
+//           'profil_guru': {'id': 10, 'nama_lengkap': 'Guru Hebat'},
+//           'token': 'dummy_token'
 //         }
 //       };
 
@@ -37,45 +36,42 @@
 //         Uri.parse('http://127.0.0.1:8000/api/login-guru'),
 //         headers: anyNamed('headers'),
 //         body: anyNamed('body'),
-//       )).thenAnswer((_) async => http.Response(jsonEncode(mockResponseData), 200));
+//       )).thenAnswer((_) async => http.Response(jsonEncode(mockResponse), 200));
 
-//       final result = await authRepository.loginTeacher('john.doe@example.com', 'password123');
+//       // Act
+//       final result = await repository.loginTeacher(email, password);
 
+//       // Assert
 //       expect(result.success, true);
-//       expect(result.message, 'Login berhasil');
-//       expect(result.token, 'abc123token');
-//       expect(result.teacher, isNotNull);
-//       expect(result.teacher!.namaLengkap, 'John Doe');
+//       expect(result.user?['name'], 'Guru');
+//       expect(result.profilGuru?['nama_lengkap'], 'Guru Hebat');
 //     });
 
-//     test('returns AuthResponse with failure on invalid login', () async {
-//       final mockErrorResponse = {
-//         'message': 'Invalid credentials',
-//         'errors': {'email_or_hp': ['Email atau password salah']}
+//     test('registerTeacher returns failed AuthResponse when status code != 201', () async {
+//       // Arrange
+//       final mockData = {
+//         'nama_lengkap': 'Guru Coba',
+//         'email': 'guru@coba.com',
+//         'no_hp': '08123456789',
+//         'password': 'password',
+//         'NPSN': '12345678',
+//         'NUPTK': '87654321',
+//         'tingkatPengajar': 'SMA',
+//         'tgl_lahir': '1990-01-01',
 //       };
 
-//       when(mockClient.post(
-//         Uri.parse('http://127.0.0.1:8000/api/login-guru'),
-//         headers: anyNamed('headers'),
-//         body: anyNamed('body'),
-//       )).thenAnswer((_) async => http.Response(jsonEncode(mockErrorResponse), 401));
+//       final mockResponse = {
+//         'message': 'Validasi gagal',
+//         'errors': {'email': ['Email sudah digunakan']}
+//       };
 
-//       final result = await authRepository.loginTeacher('wrong@example.com', 'wrongpass');
+//       // NOTE: Multipart test tricky. This is a logic test, not integration test.
+//       // So we call the real method and fake response handling if you want true coverage use integration testing.
 
-//       expect(result.success, false);
-//       expect(result.message, 'Invalid credentials');
-//       expect(result.teacher, isNull);
-//     });
+//       // Act
+//       final result = await repository.registerTeacher(mockData);
 
-//     test('returns AuthResponse with failure on exception', () async {
-//       when(mockClient.post(
-//         Uri.parse('http://127.0.0.1:8000/api/login-guru'),
-//         headers: anyNamed('headers'),
-//         body: anyNamed('body'),
-//       )).thenThrow(Exception('Network error'));
-
-//       final result = await authRepository.loginTeacher('email@example.com', 'pass');
-
+//       // Assert
 //       expect(result.success, false);
 //       expect(result.message, contains('Terjadi kesalahan'));
 //     });
