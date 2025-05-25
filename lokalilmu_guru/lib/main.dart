@@ -11,6 +11,7 @@ import 'package:lokalilmu_guru/repositories/auth_repository.dart';
 import 'package:lokalilmu_guru/repositories/book_repository.dart';
 import 'package:lokalilmu_guru/repositories/course_repository.dart';
 import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
+import 'package:lokalilmu_guru/search_mentor.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,6 +111,13 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/mentor',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<MentorCubit>(),
+        child: const SearchMentorPage(), // Tidak perlu inject repository manual lagi
+      ),
+    ),
+    GoRoute(
       path: '/bukusaya',
       builder: (context, state) => BlocProvider(
         create: (_) => getIt<PerpusCubit>(),
@@ -145,7 +153,7 @@ final GoRouter _router = GoRouter(
 
 class MyApp extends StatelessWidget {
   final bool hasSeenOnboarding;
-
+  
   const MyApp({Key? key, required this.hasSeenOnboarding}) : super(key: key);
 
   @override
@@ -160,6 +168,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         title: 'LokaIlmu',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
         fontFamily: 'Poppins',
         textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Poppins'),
