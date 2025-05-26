@@ -158,7 +158,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authRepository = AuthRepository(baseUrl: 'http://127.0.0.1:8000');
+    final authRepository = AuthRepository();
 
     return MultiBlocProvider(
       providers: [

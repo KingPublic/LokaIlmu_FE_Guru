@@ -1,31 +1,67 @@
-import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:lokalilmu_guru/model/auth_response.dart';
+import 'package:path/path.dart' as p;
 
 class AuthRepository {
-  final String baseUrl;
-  
-  AuthRepository({required this.baseUrl});
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: 'http://127.0.0.1:8000/api',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ),
+  );
 
   Future<AuthResponse> loginTeacher(String email, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/login-guru'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email_or_hp': email,
-          'password': password,
-        }),
+      final formData = FormData.fromMap({
+        'email_or_hp': email ?? '',
+        'password': password ?? '',
+      });
+
+      final response = await _dio.post(
+        '/login-guru',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
       );
 
       debugPrint("Status Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.body}");
+      debugPrint("Response Body: ${response.data}");
 
-      final responseData = jsonDecode(response.body);
+      final responseData = response.data;
       
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+    //   if (response.statusCode != null && response.statusCode >= 200 && response.statusCode < 300) {
+    //     final data = responseData['data'];
+    //     return AuthResponse.fromJson({
+    //       'success': true,
+    //       'message': responseData['message'],
+    //       'user': data['user'],
+    //       'profil_guru': data['profil_guru'],
+    //       'token': data['token'],
+    //     });
+    //   } else {
+    //     return AuthResponse.fromJson({
+    //       'success': false,
+    //       'message': responseData['message'],
+    //       'errors': responseData['errors'],
+    //     });
+    //   }
+    // } catch (e) {
+    //   return AuthResponse(
+    //     success: false,
+    //     message: 'Terjadi kesalahan: ${e.toString()}',
+    //   );
+    // }
+
+    if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
         final data = responseData['data'];
         return AuthResponse.fromJson({
           'success': true,
@@ -41,54 +77,57 @@ class AuthRepository {
           'errors': responseData['errors'],
         });
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      if (response != null && response.data is Map) {
+        return AuthResponse.fromJson({
+          'success': false,
+          'message': response.data['message'] ?? 'Terjadi kesalahan saat register',
+          'errors': response.data['errors'],
+        });
+      } else {
+        return AuthResponse(
+          success: false,
+          message: 'Gagal menghubungi server: ${e.message}',
+        );
+      }
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: 'Terjadi kesalahan: ${e.toString()}',
+        message: 'Terjadi kesalahan tidak diketahui: ${e.toString()}',
       );
     }
   }
 
-  Future<AuthResponse> registerTeacher(Map<String, dynamic> data) async {//, File ktpFile) async {
+  Future<AuthResponse> registerTeacher(Map<String, dynamic> data, {File? ktpFile}) async {//, File ktpFile) async {
     try {
-      // Create multipart request
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://127.0.0.1:8000/api/register-guru'),
+      final formData = FormData.fromMap({
+        'nama_lengkap': data['nama_lengkap'] ?? '',
+        'email': data['email'] ?? '',
+        'no_hp': data['no_hp'] ?? '',
+        'password': data['password'] ?? '',
+        'NPSN': data['NPSN'] ?? '',
+        'NUPTK': data['NUPTK'] ?? '',
+        'tingkatPengajar': data['tingkatPengajar'] ?? '',
+        'tgl_lahir': data['tgl_lahir'] ?? '',
+        if (ktpFile != null && ktpFile.path.isNotEmpty)
+          'pathKTP': await MultipartFile.fromFile(
+            ktpFile.path,
+            filename: p.basename(ktpFile.path),
+            contentType: MediaType('application', 'octet-stream'), // Atur sesuai mime-type yang lebih tepat jika diperlukan
+          ),
+      });
+
+      final response = await _dio.post(
+        '/register-guru',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
       );
 
-      // Add text fields based on the Laravel controller requirements
-      request.fields['nama_lengkap'] = data['nama_lengkap'] ?? '';
-      request.fields['email'] = data['email'] ?? '';
-      request.fields['no_hp'] = data['no_hp'] ?? '';
-      request.fields['password'] = data['password'] ?? '';
-      request.fields['NPSN'] = data['NPSN'] ?? '';
-      request.fields['NUPTK'] = data['NUPTK'] ?? '';
-      request.fields['tingkatPengajar'] = data['tingkatPengajar'] ?? '';
-      request.fields['tgl_lahir'] = data['tgl_lahir'] ?? '';
-      
-      // Add KTP file if provided
-      // if (ktpFile.path.isNotEmpty) {
-      //   final fileExtension = p.extension(ktpFile.path).toLowerCase();
-      //   final mimeType = fileExtension == '.pdf' 
-      //       ? 'application/pdf' 
-      //       : 'image/${fileExtension.replaceAll('.', '')}';
-        
-      //   request.files.add(
-      //     await http.MultipartFile.fromPath(
-      //       'pathKTP',
-      //       ktpFile.path,
-      //       contentType: MediaType.parse(mimeType),
-      //     ),
-      //   );
-      // }
+      final responseData = response.data;
 
-      // Send request
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-      
-      final responseData = jsonDecode(response.body);
-      
       if (response.statusCode == 201) {
         return AuthResponse.fromJson({
           ...responseData,
@@ -100,11 +139,26 @@ class AuthRepository {
           'success': false,
         });
       }
+    } on DioException catch (e) {
+      final response = e.response;
+      if (response != null && response.data is Map) {
+        return AuthResponse.fromJson({
+          'success': false,
+          'message': response.data['message'] ?? 'Terjadi kesalahan saat register',
+          'errors': response.data['errors'],
+        });
+      } else {
+        return AuthResponse(
+          success: false,
+          message: 'Gagal menghubungi server: ${e.message}',
+        );
+      }
     } catch (e) {
       return AuthResponse(
         success: false,
-        message: 'Terjadi kesalahan: ${e.toString()}',
+        message: 'Terjadi kesalahan tidak diketahui: ${e.toString()}',
       );
     }
   }
 }
+
