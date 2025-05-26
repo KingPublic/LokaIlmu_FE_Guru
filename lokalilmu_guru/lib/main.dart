@@ -153,7 +153,7 @@ final GoRouter _router = GoRouter(
 
 class MyApp extends StatelessWidget {
   final bool hasSeenOnboarding;
-
+  
   const MyApp({Key? key, required this.hasSeenOnboarding}) : super(key: key);
 
   @override
@@ -168,6 +168,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         title: 'LokaIlmu',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
         fontFamily: 'Poppins',
         textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Poppins'),
