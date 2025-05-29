@@ -146,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final Map<String, dynamic> registrationData = {
         'nama_lengkap': _namaController.text,
         'email': _emailController.text,
-        'no_hp': '08012345678', // Hardcoded for testing, replace with _emailController.text
+        'no_hp': '08012345679', // Hardcoded for testing, replace with _emailController.text
         'password': _passwordController.text,
         'NPSN':  _npsnController.text,
         'NUPTK': _nipController.text,
