@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'book_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class BookModelAdapter extends TypeAdapter<BookModel> {
   @override
@@ -16,8 +22,8 @@ class BookModelAdapter extends TypeAdapter<BookModel> {
       category: fields[2] as String,
       description: fields[3] as String,
       imageUrl: fields[4] as String,
-      filePath: fields.containsKey(5) ? fields[5] as String? : null,
-      isSaved: fields.containsKey(6) ? fields[6] as bool : false,
+      filePath: fields[5] as String?,
+      isSaved: fields[6] as bool,
     );
   }
 

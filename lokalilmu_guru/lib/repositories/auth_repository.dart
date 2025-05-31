@@ -34,8 +34,10 @@ class AuthRepository {
       );
 
       debugPrint("Status Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.data}");
 
+      // debugPrint("Response Body: ${response.body}");
+      // final responseData = jsonDecode(response.body);
+      debugPrint("Response Body: ${response.data}");
       final responseData = response.data;
       
     //   if (response.statusCode != null && response.statusCode >= 200 && response.statusCode < 300) {
