@@ -1,6 +1,6 @@
 # Integration Plan - Aplikasi Lokailmu
 
-## 1. 🏛️ Arsitektur Diagram
+## 1. Arsitektur Diagram
 
 ![Arsitektur Lokailmu](./assets/lokailmu-architecture.png)
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 2. 🧠 State Management Strategy
+## 2. State Management Strategy
 
 ### Pendekatan: **BLoC / Cubit**
 
@@ -37,7 +37,7 @@
 
 ---
 
-## 3. 🌐 API Strategy
+## 3. API Strategy
 
 ### Library: [`Dio`](https://pub.dev/packages/dio)
 
