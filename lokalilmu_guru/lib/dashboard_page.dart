@@ -108,18 +108,18 @@ class DashboardPage extends StatelessWidget {
             
             // Demo toggle button (you would remove this in production)
             const SizedBox(height: 40),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<DashboardBloc>().add(
-                    ToggleCourseStateEvent(!state.hasJoinedCourses),
-                  );
-                },
-                child: Text(state.hasJoinedCourses
-                    ? 'Show Empty State'
-                    : 'Show Courses'),
-              ),
-            ),
+            // Center(
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       context.read<DashboardBloc>().add(
+            //         ToggleCourseStateEvent(!state.hasJoinedCourses),
+            //       );
+            //     },
+            //     child: Text(state.hasJoinedCourses
+            //         ? 'Show Empty State'
+            //         : 'Show Courses'),
+            //   ),
+            // ),
           ],
         ),
       ),
