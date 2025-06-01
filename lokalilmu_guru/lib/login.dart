@@ -53,10 +53,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Input Email/HP dan Password
                 _buildTextField(
                   label: "Email / Nomor HP",
+                  key: const Key('emailOrHPField'),
+                  validator: _validateEmailOrPhone,
                   controller: _emailOrPhoneController,
                 ),
                 _buildTextField(
                   label: "Password",
+                  key: const Key('passwordField'),
                   obscure: true,
                   controller: _passwordController,
                 ),
@@ -132,6 +135,25 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  String? _validateEmailOrPhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Isi email atau nomor HP terlebih dahulu';
+    }
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    final phoneRegex = RegExp(r'^08[0-9]{8,11}$');
+
+    if (value.contains('@')) {
+      if (!emailRegex.hasMatch(value)) {
+        return 'Masukkan email atau nomor HP yang valid';
+      }
+    } else {
+      if (!phoneRegex.hasMatch(value)) {
+        return 'Masukkan email atau nomor HP yang valid';
+      }
+    }
+    return null;
+  }
+
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
       final loginData = {
@@ -161,6 +183,8 @@ class _LoginScreenState extends State<LoginScreen> {
     required String label,
     bool obscure = false,
     TextEditingController? controller,
+    String? Function(String?)? validator,
+    Key? key,
   }) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -186,12 +210,18 @@ class _LoginScreenState extends State<LoginScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
+        key: key,
         controller: controller,
         obscureText: obscure,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Isi $label terlebih dahulu';
           }
+
+          if (validator != null) {
+            return validator(value);
+          }
+
           return null;
         },
         decoration: InputDecoration(

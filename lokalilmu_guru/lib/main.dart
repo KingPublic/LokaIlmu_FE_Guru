@@ -273,7 +273,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(child: Lottie.asset(data["lottie"]!, fit: BoxFit.contain)),
+          Expanded(child: Lottie.asset(data["lottie"]!, repeat: false, fit: BoxFit.contain)),
           const SizedBox(height: 12),
           Text(
             data["title"]!,

@@ -256,13 +256,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text("Silahkan lengkapi profil anda", style: TextStyle(fontSize: 14, color: Colors.black54)),
                 const SizedBox(height: 24),
 
-                _buildTextField("Nama Lengkap", controller: _namaController),
-                _buildTextField("Email / Nomor HP", controller: _emailController),
-                _buildTextField("Password", controller: _passwordController, obscure: true),
-                _buildTextField("Konfirmasi Password", controller: _confirmPasswordController, obscure: true),
-                _buildTextField("NIP / NUPTK", controller: _nipController),
-                _buildTextField("Nama Sekolah", controller: _sekolahController),
-                _buildTextField("NPSN", controller: _npsnController),
+                _buildTextField("Nama Lengkap", key: const Key("namaLengkapField"), controller: _namaController),
+                _buildTextField("Email / Nomor HP", key: const Key("emailOrHPField"), controller: _emailController),
+                _buildTextField("Password", key: const Key("passwordField"), controller: _passwordController, obscure: true),
+                _buildTextField("Konfirmasi Password", key: const Key("confirmPasswordField"), controller: _confirmPasswordController, obscure: true),
+                _buildTextField("NIP / NUPTK", key: const Key("NIPNUPTKField"), controller: _nipController),
+                _buildTextField("Nama Sekolah", key: const Key("namaSekolahField"), controller: _sekolahController),
+                _buildTextField("NPSN", key: const Key("npsnField"), controller: _npsnController),
 
                 DropdownButtonFormField<String>(
                   decoration: _inputDecoration("Tingkat Pengajar"),
@@ -287,6 +287,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
 
                 GestureDetector(
+                  key: const Key('ktp_picker'),
                   onTap: _pickKTP,
                   child: Container(
                     padding: const EdgeInsets.all(20),
@@ -364,10 +365,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   });
   }
 
-  Widget _buildTextField(String label, {bool obscure = false, TextEditingController? controller}) {
+  Widget _buildTextField(String label, {Key? key, bool obscure = false, TextEditingController? controller}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
+        key: key,
         controller: controller,
         obscureText: obscure,
         decoration: _inputDecoration(label),
@@ -375,7 +377,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // Jika label adalah "Path KTP", field ini tidak wajib
           if (label.toLowerCase() == 'path ktp') return null;
           // Validasi default untuk field lain
-          return value == null || value.isEmpty ? 'Isi $label terlebih dahulu' : null;
+          if (value == null || value.isEmpty) {
+            return 'Isi $label terlebih dahulu';
+          }
+
+          if (label.toLowerCase().contains('email') || label.toLowerCase().contains('nomor hp')) {
+            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+            final phoneRegex = RegExp(r'^08[0-9]{8,11}$');
+
+            if (value.contains('@')) {
+              if (!emailRegex.hasMatch(value)) {
+                return 'Masukkan email atau nomor HP yang valid';
+              }
+            } else {
+              if (!phoneRegex.hasMatch(value)) {
+                return 'Masukkan email atau nomor HP yang valid';
+              }
+            }
+          }
         },
       ),
     );
