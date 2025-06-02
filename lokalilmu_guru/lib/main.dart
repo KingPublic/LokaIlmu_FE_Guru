@@ -14,7 +14,9 @@ import 'package:lokalilmu_guru/repositories/mentor_repository.dart';
 import 'package:lokalilmu_guru/search_mentor.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'blocs/forum_cubit.dart';
+import 'repositories/forum_repository.dart';
+import 'forum.dart';
 import 'bukusaya.dart';
 import 'dashboard_page.dart';
 import 'login.dart';
@@ -47,6 +49,7 @@ final getIt = GetIt.instance;
 
 void setupDI() {
   getIt.registerLazySingleton(() => OnboardingService());
+  getIt.registerLazySingleton(() => ForumRepository()); 
 
   // Register repositories
   getIt.registerLazySingleton(() => CourseRepository());
@@ -62,6 +65,8 @@ void setupDI() {
   
   getIt.registerFactory(() => MentorCubit(
         mentorRepository: getIt<MentorRepository>()));
+
+  getIt.registerFactory(() => ForumCubit(getIt<ForumRepository>()));
 }
 
 
@@ -122,6 +127,13 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => BlocProvider(
         create: (_) => getIt<PerpusCubit>(),
         child: const BukuSayaPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/forum',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ForumCubit>(),
+        child: const ForumPage(),
       ),
     ),
 
