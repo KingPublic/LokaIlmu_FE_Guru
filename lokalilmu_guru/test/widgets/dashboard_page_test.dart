@@ -65,6 +65,18 @@ void main() {
     expect(find.text('Pelatihan Flutter'), findsOneWidget);
     expect(find.text('60%'), findsOneWidget);
   });
+
+  testWidgets('menampilkan header dengan ikon profil dan nama user', (tester) async {
+    await tester.pumpWidget(createWidgetUnderTest(DashboardLoading()));
+    // Cek apakah AppHeader ada
+    expect(find.byType(AppBar), findsOneWidget);
+
+    // Cek apakah ikon profil ada (misal Icons.person)
+    expect(find.byIcon(Icons.person_outline), findsOneWidget);
+
+    // Cek apakah nama user tampil
+    expect(find.text('Kalvin Richie'), findsOneWidget);
+  });
 }
 
 // FakeBloc untuk testing
