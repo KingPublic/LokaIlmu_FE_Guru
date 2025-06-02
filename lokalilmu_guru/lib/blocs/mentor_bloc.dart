@@ -28,12 +28,12 @@ class MentorState {
   final String? error;
 
   MentorState({
-    this.mentors = const [],
-    this.categories = const ['Semua'],
-    this.searchQuery = '',
-    this.selectedCategory = 'Semua',
-    this.isLoading = false,
-    this.error,
+    required this.mentors,
+    required this.categories,
+    required this.searchQuery,
+    required this.selectedCategory,
+    required this.isLoading,
+    required this.error,
   });
 
   MentorState copyWith({
@@ -59,7 +59,14 @@ class MentorState {
 class MentorCubit extends Cubit<MentorState> {
   final MentorRepository mentorRepository;
 
-  MentorCubit({required this.mentorRepository}) : super(MentorState());
+  MentorCubit({required this.mentorRepository}) : super(MentorState(
+    mentors: [],
+    categories: [],
+    searchQuery: '',
+    selectedCategory: 'Semua Subjek',
+    isLoading: false,
+    error: null,
+  ));
 
   // Initialize mentors and categories
   Future<void> initialize() async {
