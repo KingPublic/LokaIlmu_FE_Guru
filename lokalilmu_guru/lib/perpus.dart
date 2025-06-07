@@ -251,6 +251,7 @@ class BookDetailPage extends StatefulWidget {
 
 class _BookDetailPageState extends State<BookDetailPage> {
   bool _showFullDescription = false;
+  bool _isSaving = false; // Tambahkan state untuk loading
   final ScrollController _scrollController = ScrollController();
   
   @override
@@ -279,22 +280,6 @@ class _BookDetailPageState extends State<BookDetailPage> {
       backgroundColor: Colors.white,
       bottomNavigationBar: AppBottomNavbar(
         currentIndex: 2
-        // onTap: (index) {
-        //   switch (index) {
-        //     case 0:
-        //       context.go('/dashboard');
-        //       break;
-        //     case 1:
-        //       context.go('/mentor');
-        //       break;
-        //     case 2:
-        //       context.go('/perpustakaan');
-        //       break;
-        //     case 3:
-        //       context.go('/forum');
-        //       break;
-        //   }
-        // },
       ),
       floatingActionButton: SizedBox(
         width: 65,
@@ -389,7 +374,6 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                         width: 120,
                                         height: 180,
                                         fit: BoxFit.cover,
-                                        // Using memory cache
                                         cacheWidth: 200,
                                         errorBuilder: (_, __, ___) => Container(
                                           width: 100,
@@ -449,26 +433,53 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                         
                                         const SizedBox(height: 16),
                                         
-                                        // Action Buttons
+                                        // Action Buttons 
                                         Row(
                                           children: [
                                             Expanded(
                                               child: ElevatedButton.icon(
-                                                onPressed: () {
+                                                onPressed: _isSaving ? null : () async {
+                                                  setState(() {
+                                                    _isSaving = true;
+                                                  });
+                                                  
+                                                  // Simulasi proses saving dengan delay
+                                                  await Future.delayed(const Duration(milliseconds: 300));
+                                                  
                                                   if (isBookSaved) {
                                                     perpusCubit.unsaveBook(widget.book);
                                                   } else {
                                                     perpusCubit.saveBook(widget.book);
                                                   }
+                                                  
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _isSaving = false;
+                                                    });
+                                                  }
                                                 },
-                                                icon: Icon(
-                                                  isBookSaved ? Icons.bookmark : Icons.bookmark_border, 
-                                                  size: 18, 
-                                                  color: Colors.black
+                                                icon: _isSaving 
+                                                  ? const SizedBox(
+                                                      width: 18,
+                                                      height: 18,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                                      ),
+                                                    )
+                                                  : Icon(
+                                                      isBookSaved ? Icons.bookmark : Icons.bookmark_border, 
+                                                      size: 18, 
+                                                      color: Colors.black
+                                                    ),
+                                                label: Text(_isSaving 
+                                                  ? 'Menyimpan...' 
+                                                  : (isBookSaved ? 'Tersimpan' : 'Simpan')
                                                 ),
-                                                label: Text(isBookSaved ? 'Tersimpan' : 'Simpan'),
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor: const Color(0xFFFECB2E),
+                                                  backgroundColor: _isSaving 
+                                                    ? const Color(0xFFFECB2E).withOpacity(0.7)
+                                                    : const Color(0xFFFECB2E),
                                                   foregroundColor: Colors.black,
                                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                                   shape: RoundedRectangleBorder(
