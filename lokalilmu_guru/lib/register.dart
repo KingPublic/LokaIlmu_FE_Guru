@@ -29,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? selectedLevel;
   String? selectedSpecialization;
+  final List<String> _spesialisasiList = [];
 
   final List<String> teachingLevels = ['TK', 'SD', 'SMP', 'SMA', 'SMK'];
   final List<String> allSpecializations = [
@@ -121,6 +122,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  void _addSpesialisasi() {
+    if (selectedSpecialization != null && 
+        !_spesialisasiList.contains(selectedSpecialization!) && 
+        _spesialisasiList.length < 5) {
+      setState(() {
+        _spesialisasiList.add(selectedSpecialization!);
+        selectedSpecialization = null; // Reset dropdown
+      });
+    } else if (_spesialisasiList.length >= 5) {
+      _showError("Maksimal 5 spesialisasi");
+    }
+  }
+
+  void _removeSpesialisasi(String spesialisasi) {
+    setState(() {
+      _spesialisasiList.remove(spesialisasi);
+    });
+  }
+
   void _handleRegister() {
     setState(() {
       _fieldErrors = {};
@@ -151,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'NPSN':  _npsnController.text,
         'NUPTK': _nipController.text,
         'tingkatPengajar': selectedLevel,
-        // 'spesialisasi': selectedSpecialization,
+        'spesialisasi': _spesialisasiList,
         'tgl_lahir' : '2000-01-01',
       };
 
@@ -275,14 +295,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
 
                 DropdownButtonFormField<String>(
-                  decoration: _inputDecoration("Spesialisasi"),
+                  decoration: _inputDecoration("Spesialisasi").copyWith(
+                    suffixIcon: IconButton(
+                      onPressed: _addSpesialisasi,
+                      icon: const Icon(Icons.add, color: Color(0xFF0C3450)),
+                    ),
+                  ),
                   value: selectedSpecialization,
                   items: allSpecializations
+                      .where((spec) => !_spesialisasiList.contains(spec))
                       .map((spec) => DropdownMenuItem(value: spec, child: Text(spec)))
                       .toList(),
                   onChanged: (value) => setState(() => selectedSpecialization = value),
-                  validator: (value) => value == null ? 'Pilih spesialisasi' : null,
+                  validator: (value) {
+                    if (_spesialisasiList.isEmpty) {
+                      return 'Tambahkan minimal 1 spesialisasi';
+                    }
+                    return null;
+                  },
                 ),
+                if (_spesialisasiList.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _spesialisasiList.map((spesialisasi) => Chip(
+                      label: Text(spesialisasi),
+                      onDeleted: () => _removeSpesialisasi(spesialisasi),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      backgroundColor: Colors.grey[100],
+                    )).toList(),
+                  ),
+                ],
 
                 const SizedBox(height: 16),
 
