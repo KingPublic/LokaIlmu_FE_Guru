@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -5,6 +6,27 @@ import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:lokalilmu_guru/model/auth_response.dart';
 import 'package:path/path.dart' as p;
+
+void debugFormData(FormData formData) {
+  final Map<String, dynamic> jsonMap = {};
+
+  // Tambahkan fields biasa
+  for (final field in formData.fields) {
+    jsonMap[field.key] = field.value;
+  }
+
+  // Tambahkan info file (tanpa isi file-nya, hanya nama dan key)
+  for (final file in formData.files) {
+    jsonMap[file.key] = {
+      'filename': file.value.filename,
+      'contentType': file.value.contentType.toString(),
+    };
+  }
+
+  // Cetak hasil dalam bentuk JSON
+  debugPrint(jsonEncode(jsonMap));
+}
+
 
 class AuthRepository {
   final Dio _dio = Dio(
@@ -103,6 +125,29 @@ class AuthRepository {
 
   Future<AuthResponse> registerTeacher(Map<String, dynamic> data, {File? ktpFile}) async {//, File ktpFile) async {
     try {
+      final spesialisasi = data['spesialisasi'];
+
+      List<String> spesialisasiList;
+      if (spesialisasi is List<String>) {
+        spesialisasiList = spesialisasi;
+      } else if (spesialisasi is String) {
+        spesialisasiList = spesialisasi.split(',').map((e) => e.trim()).toList();
+      } else {
+        spesialisasiList = [];
+      }
+
+      // final dataPayload = {
+      //   'nama_lengkap': data['nama_lengkap'] ?? '',
+      //   'email': data['email'] ?? '',
+      //   'no_hp': data['no_hp'] ?? '',
+      //   'password': data['password'] ?? '',
+      //   'NPSN': data['NPSN'] ?? '',
+      //   'NUPTK': data['NUPTK'] ?? '',
+      //   'tingkatPengajar': data['tingkatPengajar'] ?? '',
+      //   'tgl_lahir': data['tgl_lahir'] ?? '',
+      //   'spesialisasi': spesialisasiList,
+      // };
+
       final formData = FormData.fromMap({
         'nama_lengkap': data['nama_lengkap'] ?? '',
         'email': data['email'] ?? '',
@@ -111,6 +156,7 @@ class AuthRepository {
         'NPSN': data['NPSN'] ?? '',
         'NUPTK': data['NUPTK'] ?? '',
         'tingkatPengajar': data['tingkatPengajar'] ?? '',
+        'spesialisasi': spesialisasiList,
         'tgl_lahir': data['tgl_lahir'] ?? '',
         if (ktpFile != null && ktpFile.path.isNotEmpty)
           'pathKTP': await MultipartFile.fromFile(
@@ -118,7 +164,43 @@ class AuthRepository {
             filename: p.basename(ktpFile.path),
             contentType: MediaType('application', 'octet-stream'), // Atur sesuai mime-type yang lebih tepat jika diperlukan
           ),
-      });
+      }, ListFormat.multiCompatible);
+
+      // final formData = FormData();
+
+      // formData.fields.add(MapEntry('nama_lengkap', data['nama_lengkap'] ?? ''));
+      // formData.fields.add(MapEntry('email', data['email'] ?? ''));
+      // formData.fields.add(MapEntry('no_hp', data['no_hp'] ?? ''));
+      // formData.fields.add(MapEntry('password', data['password'] ?? ''));
+      // formData.fields.add(MapEntry('NPSN', data['NPSN'] ?? ''));
+      // formData.fields.add(MapEntry('NUPTK', data['NUPTK'] ?? ''));
+      // formData.fields.add(MapEntry('tingkatPengajar', data['tingkatPengajar'] ?? ''));
+      // // ... add other single fields similarly
+
+      // // Add spesialisasi array as multiple entries with key 'spesialisasi[]'
+      // for (final spec in spesialisasiList) {
+      //   formData.fields.add(MapEntry('spesialisasi[]', spec));
+      // }
+
+      // // Add file if present
+      // if (ktpFile != null && ktpFile.path.isNotEmpty) {
+      //   formData.files.add(MapEntry(
+      //     'pathKTP',
+      //     await MultipartFile.fromFile(
+      //       ktpFile.path,
+      //       filename: p.basename(ktpFile.path),
+      //       contentType: MediaType('application', 'octet-stream'),
+      //     ),
+      //   ));
+      // }
+
+
+        // DEBUG: Print form data before sending
+      debugFormData(formData);
+      debugPrint('Spesialisasi is list? ${spesialisasiList is List<String>}');
+      debugPrint('Spesialisasi: ${jsonEncode(spesialisasiList)}');
+      // debugPrint('Payload JSON:\n${jsonEncode(dataPayload)}');
+      // debugPrint('Form Data: ${jsonEncode(formData.fields)}');
 
       final response = await _dio.post(
         '/register-guru',

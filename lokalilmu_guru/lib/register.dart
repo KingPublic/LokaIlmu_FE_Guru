@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'model/school_model.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lokalilmu_guru/blocs/auth_bloc.dart';
 import 'package:path/path.dart' as p;
+
+import 'model/school_model.dart';
 
 
 class RegisterScreen extends StatefulWidget {
@@ -368,34 +370,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     
-                    
-                    // Hanya tampil jika kedua field kosong
-                    if (_showInfoBox)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 16.0),
-                        padding: const EdgeInsets.all(12.0),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.shade200),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.blue.shade600, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                "Minimal isi salah satu: Email atau Nomor HP",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    
                     _buildTextField("Password", key: const Key("passwordField"), controller: _passwordController, obscure: true),
                     _buildTextField("Konfirmasi Password", key: const Key("confirmPasswordField"), controller: _confirmPasswordController, obscure: true),
                     _buildTextField("NIP / NUPTK", key: const Key("NIPNUPTKField"), controller: _nipController),
@@ -524,7 +498,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ? null
                           : () {
                               setState(() => _isSubmitting = true);
-                               debugPrint('\n=================== DATA FORM USER ===================');
+                                debugPrint('\n=================== DATA FORM USER ===================');
                                 debugPrint('Nama Lengkap: ${_namaController.text}');
                                 debugPrint('Email: ${_emailController.text.isEmpty ? "Tidak diisi" : _emailController.text}');
                                 debugPrint('Nomor HP: ${_noHpController.text.isEmpty ? "Tidak diisi" : "+62${_noHpController.text}"}');
