@@ -23,6 +23,10 @@ import 'login.dart';
 import 'model/book_model.dart';
 import 'perpus.dart';
 import 'register.dart';
+import 'repositories/edit_repository.dart';
+import 'blocs/edit_bloc.dart';
+import 'model/loginregis_model.dart';
+import 'edit_profile.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -54,6 +58,8 @@ void setupDI() {
   // Register repositories
   getIt.registerLazySingleton(() => CourseRepository());
 
+  getIt.registerLazySingleton(() => EditProfileRepository());
+
   getIt.registerLazySingleton(() => BookRepository());
 
   getIt.registerLazySingleton(() => MentorRepository()); 
@@ -67,6 +73,9 @@ void setupDI() {
         mentorRepository: getIt<MentorRepository>()));
 
   getIt.registerFactory(() => ForumCubit(getIt<ForumRepository>()));
+
+  getIt.registerFactory(() => EditProfileBloc(
+        repository: getIt<EditProfileRepository>()));
 }
 
 
@@ -135,6 +144,26 @@ final GoRouter _router = GoRouter(
         create: (_) => getIt<ForumCubit>(),
         child: const ForumPage(),
       ),
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      builder: (context, state) {
+        // Get current user data from AuthBloc
+        final authState = context.read<AuthBloc>().state;
+        RegisterModel? currentUser;
+        
+        if (authState is AuthAuthenticated) {
+          currentUser = authState.user ?? authState.profilGuru;
+        } else if (authState is AuthRegistrationSuccess) {
+          currentUser = authState.user ?? authState.profilGuru;
+        }
+        
+        return BlocProvider(
+          create: (_) => getIt<EditProfileBloc>()
+            ..add(LoadUserDataEvent(userData: currentUser)),
+          child: const EditProfilePage(),
+        );
+      },
     ),
 
   ],
