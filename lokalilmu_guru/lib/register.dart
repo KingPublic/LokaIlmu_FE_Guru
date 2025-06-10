@@ -11,7 +11,6 @@ import 'package:path/path.dart' as p;
 
 import 'model/school_model.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -22,13 +21,25 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  // Text controllers
   final _namaController = TextEditingController();
   final _emailController = TextEditingController();
-  final _noHpController = TextEditingController(); // Controller baru untuk nomor HP
+  final _noHpController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nipController = TextEditingController();
   final _npsnController = TextEditingController();
+
+  // Focus nodes to track field focus
+  final _namaFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _noHpFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
+  final _nipFocus = FocusNode();
+
+  // Track which fields have been touched (interacted with)
+  final Set<String> _touchedFields = {};
 
   String? selectedLevel;
   String? selectedSpecialization;
@@ -37,6 +48,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Variable untuk mengecek apakah info box harus ditampilkan
   bool _showInfoBox = true;
+
+  // Map untuk menyimpan error message untuk setiap field
+  Map<String, String> _fieldErrors = {};
 
   final List<SchoolModel> schools = [
     SchoolModel(idSekolah: 1, npsn: "12345678", namaSekolah: "SMA Negeri 1 Jakarta"),
@@ -55,7 +69,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   File? ktpFile;
   bool _isSubmitting = false;
-  Map<String, String> _fieldErrors = {};
 
   final ImagePicker _picker = ImagePicker();
 
@@ -65,17 +78,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // Listener untuk mengecek apakah salah satu field sudah diisi
     _emailController.addListener(_updateInfoBoxVisibility);
     _noHpController.addListener(_updateInfoBoxVisibility);
+    
+    // Setup focus listeners
+    _setupFocusListeners();
+    
+    // Setup text change listeners for real-time validation of already touched fields
+    _setupTextChangeListeners();
+  }
+
+  void _setupFocusListeners() {
+    // When focus is lost, validate the field
+    _namaFocus.addListener(() {
+      if (!_namaFocus.hasFocus) {
+        _touchedFields.add('nama');
+        _validateNama();
+      }
+    });
+    
+    _emailFocus.addListener(() {
+      if (!_emailFocus.hasFocus) {
+        _touchedFields.add('email');
+        _validateEmailOrPhone();
+        _validateEmail();
+      }
+    });
+    
+    _noHpFocus.addListener(() {
+      if (!_noHpFocus.hasFocus) {
+        _touchedFields.add('phone');
+        _validatePhone();
+      }
+    });
+    
+    _passwordFocus.addListener(() {
+      if (!_passwordFocus.hasFocus) {
+        _touchedFields.add('password');
+        _validatePassword();
+      }
+    });
+    
+    _confirmPasswordFocus.addListener(() {
+      if (!_confirmPasswordFocus.hasFocus) {
+        _touchedFields.add('confirmPassword');
+        _validateConfirmPassword();
+      }
+    });
+    
+    _nipFocus.addListener(() {
+      if (!_nipFocus.hasFocus) {
+        _touchedFields.add('nip');
+        _validateNIP();
+      }
+    });
+  }
+
+  void _setupTextChangeListeners() {
+    // Only validate if the field has been touched before
+    _namaController.addListener(() {
+      if (_touchedFields.contains('nama')) {
+        _validateNama();
+      }
+    });
+    
+    _emailController.addListener(() {
+      if (_touchedFields.contains('email')) {
+        _validateEmailOrPhone();
+        _validateEmail();
+      }
+    });
+    
+    _noHpController.addListener(() {
+      if (_touchedFields.contains('phone')) {
+        _validatePhone();
+      }
+    });
+    
+    _passwordController.addListener(() {
+      if (_touchedFields.contains('password')) {
+        _validatePassword();
+      }
+      // Always revalidate confirm password if it's been touched
+      if (_touchedFields.contains('confirmPassword')) {
+        _validateConfirmPassword();
+      }
+    });
+    
+    _confirmPasswordController.addListener(() {
+      if (_touchedFields.contains('confirmPassword')) {
+        _validateConfirmPassword();
+      }
+    });
+    
+    _nipController.addListener(() {
+      if (_touchedFields.contains('nip')) {
+        _validateNIP();
+      }
+    });
   }
 
   @override
   void dispose() {
+    // Dispose controllers
     _namaController.dispose();
     _emailController.dispose();
-    _noHpController.dispose(); // Dispose controller nomor HP
+    _noHpController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nipController.dispose();
     _npsnController.dispose();
+    
+    // Dispose focus nodes
+    _namaFocus.dispose();
+    _emailFocus.dispose();
+    _noHpFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
+    _nipFocus.dispose();
+    
     super.dispose();
   }
 
@@ -99,17 +218,227 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _npsnController.clear();
       }
     });
+    
+    // Mark school as touched and validate
+    _touchedFields.add('school');
+    _validateSchool();
   }
 
-  // Fungsi validasi untuk memastikan minimal salah satu dari email atau nomor HP diisi
-  String? _validateEmailOrPhone() {
+  // Fungsi untuk mengupdate tingkat pengajar
+  void _onLevelSelected(String? level) {
+    setState(() {
+      selectedLevel = level;
+    });
+    
+    // Mark level as touched and validate
+    _touchedFields.add('level');
+    _validateLevel();
+  }
+
+  // Fungsi validasi untuk memastikan email terisi
+  bool _validateEmailOrPhone() {
     final email = _emailController.text.trim();
+    
+    if (email.isEmpty) {
+      setState(() {
+        _fieldErrors['contact'] = 'Email tidak boleh kosong';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('contact');
+      });
+    }
+    return true;
+  }
+
+  // Validasi email
+  bool _validateEmail() {
+    final email = _emailController.text.trim();
+    
+    if (email.isNotEmpty) {
+      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+      if (!emailRegex.hasMatch(email)) {
+        setState(() {
+          _fieldErrors['email'] = 'Format email tidak valid';
+        });
+        return false;
+      } else {
+        setState(() {
+          _fieldErrors.remove('email');
+        });
+      }
+    }
+    return true;
+  }
+
+  // Validasi nomor HP
+  bool _validatePhone() {
     final phone = _noHpController.text.trim();
     
-    if (email.isEmpty && phone.isEmpty) {
-      return 'Minimal isi salah satu: Email atau Nomor HP';
+    if (phone.isNotEmpty) {
+      final phoneRegex = RegExp(r'^8[0-9]{8,12}$');
+      if (!phoneRegex.hasMatch(phone)) {
+        setState(() {
+          _fieldErrors['phone'] = 'Nomor HP harus diawali dengan 8 dan memiliki 9-13 digit';
+        });
+        return false;
+      } else {
+        setState(() {
+          _fieldErrors.remove('phone');
+        });
+      }
+    } else {
+      setState(() {
+        _fieldErrors.remove('phone');
+      });
     }
-    return null;
+    return true;
+  }
+
+  // Validasi password
+  bool _validatePassword() {
+    final password = _passwordController.text;
+    
+    if (password.isEmpty) {
+      setState(() {
+        _fieldErrors['password'] = 'Password tidak boleh kosong';
+      });
+      return false;
+    } else if (password.length < 6) {
+      setState(() {
+        _fieldErrors['password'] = 'Password minimal harus 6 karakter';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('password');
+      });
+    }
+    return true;
+  }
+  
+  // Validasi konfirmasi password
+  bool _validateConfirmPassword() {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    
+    if (confirmPassword.isEmpty) {
+      setState(() {
+        _fieldErrors['confirmPassword'] = 'Konfirmasi password tidak boleh kosong';
+      });
+      return false;
+    } else if (password != confirmPassword) {
+      setState(() {
+        _fieldErrors['confirmPassword'] = 'Password dan konfirmasi password tidak cocok';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('confirmPassword');
+      });
+    }
+    return true;
+  }
+
+  // Validasi nama
+  bool _validateNama() {
+    if (_namaController.text.trim().isEmpty) {
+      setState(() {
+        _fieldErrors['nama'] = 'Nama tidak boleh kosong';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('nama');
+      });
+    }
+    return true;
+  }
+
+  // Validasi NIP/NUPTK
+  bool _validateNIP() {
+    if (_nipController.text.trim().isEmpty) {
+      setState(() {
+        _fieldErrors['nip'] = 'NIP/NUPTK tidak boleh kosong';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('nip');
+      });
+    }
+    return true;
+  }
+
+  // Validasi sekolah dan NPSN
+  bool _validateSchool() {
+    if (selectedSchool == null) {
+      setState(() {
+        _fieldErrors['school'] = 'Pilih nama sekolah';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('school');
+      });
+    }
+    return true;
+  }
+
+  // Validasi tingkat pengajar
+  bool _validateLevel() {
+    if (selectedLevel == null) {
+      setState(() {
+        _fieldErrors['level'] = 'Pilih tingkat pengajar';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('level');
+      });
+    }
+    return true;
+  }
+
+  // Validasi spesialisasi
+  bool _validateSpecialization() {
+    if (_spesialisasiList.isEmpty) {
+      setState(() {
+        _fieldErrors['specialization'] = 'Tambahkan minimal 1 spesialisasi';
+      });
+      return false;
+    } else {
+      setState(() {
+        _fieldErrors.remove('specialization');
+      });
+    }
+    return true;
+  }
+
+  // Validasi semua field
+  bool _validateAllFields() {
+    // Mark all fields as touched
+    _touchedFields.addAll([
+      'nama', 'email', 'phone', 'password', 'confirmPassword', 
+      'nip', 'school', 'level', 'specialization'
+    ]);
+    
+    bool isValid = true;
+    
+    // Validasi semua field
+    if (!_validateNama()) isValid = false;
+    if (!_validateEmailOrPhone()) isValid = false;
+    if (!_validateEmail()) isValid = false;
+    if (!_validatePhone()) isValid = false;
+    if (!_validatePassword()) isValid = false;
+    if (!_validateConfirmPassword()) isValid = false;
+    if (!_validateNIP()) isValid = false;
+    if (!_validateSchool()) isValid = false;
+    if (!_validateLevel()) isValid = false;
+    if (!_validateSpecialization()) isValid = false;
+    
+    return isValid;
   }
 
   Future<void> _pickKTP() async {
@@ -187,6 +516,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _spesialisasiList.add(selectedSpecialization!);
         selectedSpecialization = null;
       });
+      
+      // Mark specialization as touched and validate
+      _touchedFields.add('specialization');
+      _validateSpecialization();
     } else if (_spesialisasiList.length >= 5) {
       _showError("Maksimal 5 spesialisasi");
     }
@@ -196,52 +529,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _spesialisasiList.remove(spesialisasi);
     });
+    
+    // Mark specialization as touched and validate
+    _touchedFields.add('specialization');
+    _validateSpecialization();
   }
 
   void _handleRegister() {
-    setState(() {
-      _fieldErrors = {};
-    });
-
-    // Validasi manual untuk email atau nomor HP
-    final emailOrPhoneError = _validateEmailOrPhone();
-    if (emailOrPhoneError != null) {
-      _showError(emailOrPhoneError);
-      return;
+    // Format nomor HP dengan +62 jika ada
+    String? formattedPhone;
+    if (_noHpController.text.isNotEmpty) {
+      formattedPhone = '+62${_noHpController.text}';
     }
 
-    if (_formKey.currentState!.validate()) {
-      if (_passwordController.text != _confirmPasswordController.text) {
-        _showError("Password dan konfirmasi password tidak cocok");
-        return;
-      }
+    final Map<String, dynamic> registrationData = {
+      'nama_lengkap': _namaController.text,
+      'email': _emailController.text.isNotEmpty ? _emailController.text : null,
+      'no_hp': formattedPhone,
+      'password': _passwordController.text,
+      'NPSN': _npsnController.text,
+      'NUPTK': _nipController.text,
+      'tingkatPengajar': selectedLevel,
+      'spesialisasi': _spesialisasiList,
+      'tgl_lahir': '2000-01-01',
+    };
 
-      // Format nomor HP dengan +62 jika ada
-      String? formattedPhone;
-      if (_noHpController.text.isNotEmpty) {
-        formattedPhone = '+62${_noHpController.text}';
-      }
+    _printRegistrationData(registrationData);
 
-      final Map<String, dynamic> registrationData = {
-        'nama_lengkap': _namaController.text,
-        'email': _emailController.text.isNotEmpty ? _emailController.text : null,
-        'no_hp': formattedPhone,
-        'password': _passwordController.text,
-        'NPSN': _npsnController.text,
-        'NUPTK': _nipController.text,
-        'tingkatPengajar': selectedLevel,
-        'spesialisasi': _spesialisasiList,
-        'tgl_lahir': '2000-01-01',
-      };
-
-      _printRegistrationData(registrationData);
-
-      context.read<AuthBloc>().add(
-        RegisterTeacherEvent(
-          registrationData: registrationData,
-        ),
-      );
-    }
+    context.read<AuthBloc>().add(
+      RegisterTeacherEvent(
+        registrationData: registrationData,
+      ),
+    );
   }
 
   void _printRegistrationData(Map<String, dynamic> data) {
@@ -321,128 +640,258 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const Text("Silahkan lengkapi profil anda", style: TextStyle(fontSize: 14, color: Colors.black54)),
                     const SizedBox(height: 24),
 
-                    _buildTextField("Nama Lengkap", key: const Key("namaLengkapField"), controller: _namaController),
-                    
-                    // Field Email (opsional jika nomor HP diisi)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: TextFormField(
-                        key: const Key("emailField"),
-                        controller: _emailController,
-                        decoration: _inputDecoration("Email"),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          // Jika email diisi, harus valid
-                          if (value != null && value.isNotEmpty) {
-                            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                            if (!emailRegex.hasMatch(value)) {
-                              return 'Masukkan email yang valid';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    
-                    // Field khusus untuk nomor HP (opsional jika email diisi)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: TextFormField(
-                        key: const Key("noHpField"),
-                        controller: _noHpController,
-                        decoration: _inputDecoration("Nomor HP (opsional)").copyWith(
-                          prefixText: "+62 ",
-                          hintText: "",
+                    // Nama Lengkap field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("namaLengkapField"),
+                          controller: _namaController,
+                          focusNode: _namaFocus,
+                          decoration: _inputDecoration("Nama Lengkap"),
                         ),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          // Jika nomor HP diisi, harus valid
-                          if (value != null && value.isNotEmpty) {
-                            // Validasi harus dimulai dengan 8 (karena +62 8xxx)
-                            final phoneRegex = RegExp(r'^8[0-9]{8,12}$');
-                            
-                            if (!phoneRegex.hasMatch(value)) {
-                              return 'Nomor HP harus diawali dengan 8 dan memiliki 9-13 digit';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
+                        if (_fieldErrors.containsKey('nama'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['nama']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                     
-                    _buildTextField("Password", key: const Key("passwordField"), controller: _passwordController, obscure: true),
-                    _buildTextField("Konfirmasi Password", key: const Key("confirmPasswordField"), controller: _confirmPasswordController, obscure: true),
-                    _buildTextField("NIP / NUPTK", key: const Key("NIPNUPTKField"), controller: _nipController),
-                    
-                    // Dropdown Nama Sekolah
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: DropdownButtonFormField<SchoolModel>(
-                        key: const Key("namaSekolahDropdown"),
-                        decoration: _inputDecoration("Nama Sekolah"),
-                        value: selectedSchool,
-                        items: schools.map((school) => DropdownMenuItem<SchoolModel>(
-                          value: school,
-                          child: Text(
-                            school.namaSekolah,
-                            overflow: TextOverflow.ellipsis,
+                    // Email field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("emailField"),
+                          controller: _emailController,
+                          focusNode: _emailFocus,
+                          decoration: _inputDecoration("Email"),
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        if (_fieldErrors.containsKey('email'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['email']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
                           ),
-                        )).toList(),
-                        onChanged: _onSchoolSelected,
-                        validator: (value) => value == null ? 'Pilih nama sekolah' : null,
-                        isExpanded: true,
-                      ),
+                        if (_fieldErrors.containsKey('contact'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['contact']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    
+                    // Nomor HP field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("noHpField"),
+                          controller: _noHpController,
+                          focusNode: _noHpFocus,
+                          decoration: _inputDecoration("Nomor HP (opsional)").copyWith(
+                            prefixText: "+62 ",
+                            hintText: "",
+                          ),
+                          keyboardType: TextInputType.phone,
+                        ),
+                        if (_fieldErrors.containsKey('phone'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['phone']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    
+                    // Password field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("passwordField"),
+                          controller: _passwordController,
+                          focusNode: _passwordFocus,
+                          decoration: _inputDecoration("Password"),
+                          obscureText: true,
+                        ),
+                        if (_fieldErrors.containsKey('password'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['password']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    
+                    // Konfirmasi Password field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("confirmPasswordField"),
+                          controller: _confirmPasswordController,
+                          focusNode: _confirmPasswordFocus,
+                          decoration: _inputDecoration("Konfirmasi Password"),
+                          obscureText: true,
+                        ),
+                        if (_fieldErrors.containsKey('confirmPassword'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['confirmPassword']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    
+                    // NIP/NUPTK field with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("NIPNUPTKField"),
+                          controller: _nipController,
+                          focusNode: _nipFocus,
+                          decoration: _inputDecoration("NIP / NUPTK"),
+                        ),
+                        if (_fieldErrors.containsKey('nip'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['nip']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    
+                    // Dropdown Nama Sekolah with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<SchoolModel>(
+                          key: const Key("namaSekolahDropdown"),
+                          decoration: _inputDecoration("Nama Sekolah"),
+                          value: selectedSchool,
+                          items: schools.map((school) => DropdownMenuItem<SchoolModel>(
+                            value: school,
+                            child: Text(
+                              school.namaSekolah,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )).toList(),
+                          onChanged: _onSchoolSelected,
+                          isExpanded: true,
+                        ),
+                        if (_fieldErrors.containsKey('school'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['school']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
 
                     // NPSN Field (Auto-populated, read-only)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: TextFormField(
-                        key: const Key("npsnField"),
-                        controller: _npsnController,
-                        decoration: _inputDecoration("NPSN").copyWith(
-                          suffixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          key: const Key("npsnField"),
+                          controller: _npsnController,
+                          decoration: _inputDecoration("NPSN").copyWith(
+                            suffixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          ),
+                          readOnly: true,
                         ),
-                        readOnly: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'NPSN akan terisi otomatis setelah memilih sekolah';
-                          }
-                          return null;
-                        },
-                      ),
+                        if (_npsnController.text.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              'NPSN akan terisi otomatis setelah memilih sekolah',
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
 
-                    DropdownButtonFormField<String>(
-                      decoration: _inputDecoration("Tingkat Pengajar"),
-                      value: selectedLevel,
-                      items: teachingLevels.map((level) => DropdownMenuItem(value: level, child: Text(level))).toList(),
-                      onChanged: (value) => setState(() => selectedLevel = value),
-                      validator: (value) => value == null ? 'Pilih tingkat pengajar' : null,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    DropdownButtonFormField<String>(
-                      decoration: _inputDecoration("Spesialisasi").copyWith(
-                        suffixIcon: IconButton(
-                          onPressed: _addSpesialisasi,
-                          icon: const Icon(Icons.add, color: Color(0xFF0C3450)),
+                    // Tingkat Pengajar dropdown with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          decoration: _inputDecoration("Tingkat Pengajar"),
+                          value: selectedLevel,
+                          items: teachingLevels.map((level) => DropdownMenuItem(value: level, child: Text(level))).toList(),
+                          onChanged: _onLevelSelected,
                         ),
-                      ),
-                      value: selectedSpecialization,
-                      items: allSpecializations
-                          .where((spec) => !_spesialisasiList.contains(spec))
-                          .map((spec) => DropdownMenuItem(value: spec, child: Text(spec)))
-                          .toList(),
-                      onChanged: (value) => setState(() => selectedSpecialization = value),
-                      validator: (value) {
-                        if (_spesialisasiList.isEmpty) {
-                          return 'Tambahkan minimal 1 spesialisasi';
-                        }
-                        return null;
-                      },
+                        if (_fieldErrors.containsKey('level'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['level']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
+
+                    // Spesialisasi dropdown with error message
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          decoration: _inputDecoration("Spesialisasi").copyWith(
+                            suffixIcon: IconButton(
+                              onPressed: _addSpesialisasi,
+                              icon: const Icon(Icons.add, color: Color(0xFF0C3450)),
+                            ),
+                          ),
+                          value: selectedSpecialization,
+                          items: allSpecializations
+                              .where((spec) => !_spesialisasiList.contains(spec))
+                              .map((spec) => DropdownMenuItem(value: spec, child: Text(spec)))
+                              .toList(),
+                          onChanged: (value) => setState(() => selectedSpecialization = value),
+                        ),
+                        if (_fieldErrors.containsKey('specialization'))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 12),
+                            child: Text(
+                              _fieldErrors['specialization']!,
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                      ],
+                    ),
+                    
                     if (_spesialisasiList.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Wrap(
@@ -497,26 +946,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: _isSubmitting
                           ? null
                           : () {
-                              setState(() => _isSubmitting = true);
-                                debugPrint('\n=================== DATA FORM USER ===================');
-                                debugPrint('Nama Lengkap: ${_namaController.text}');
-                                debugPrint('Email: ${_emailController.text.isEmpty ? "Tidak diisi" : _emailController.text}');
-                                debugPrint('Nomor HP: ${_noHpController.text.isEmpty ? "Tidak diisi" : "+62${_noHpController.text}"}');
-                                debugPrint('Password: ${_passwordController.text.isEmpty ? "Tidak diisi" : "****** (${_passwordController.text.length} karakter)"}');
-                                debugPrint('Konfirmasi Password: ${_confirmPasswordController.text.isEmpty ? "Tidak diisi" : "****** (${_confirmPasswordController.text.length} karakter)"}');
-                                debugPrint('NIP/NUPTK: ${_nipController.text}');
-                                debugPrint('Nama Sekolah: ${selectedSchool?.namaSekolah ?? "Belum dipilih"}');
-                                debugPrint('NPSN: ${_npsnController.text}');
-                                debugPrint('Tingkat Pengajar: ${selectedLevel ?? "Belum dipilih"}');
-                                debugPrint('Spesialisasi: ${_spesialisasiList.isEmpty ? "Belum ada" : _spesialisasiList.join(", ")}');
-                                debugPrint('File KTP: ${ktpFile?.path ?? "Belum diupload"}');
-                                debugPrint('=======================================================\n');
-                                
-                              _handleRegister();
+                              // Validasi semua field terlebih dahulu
+                              if (_validateAllFields()) {
+                                setState(() => _isSubmitting = true);
+                                _handleRegister();
+                              }
                             },
-                            child: _isSubmitting
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text("Daftar", style: TextStyle(color: Colors.white)),
+                        child: _isSubmitting
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text("Daftar", style: TextStyle(color: Colors.white)),
                       ),
                     ),
 
@@ -539,25 +977,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       }
-    );
-  }
-
-  Widget _buildTextField(String label, {Key? key, bool obscure = false, TextEditingController? controller}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextFormField(
-        key: key,
-        controller: controller,
-        obscureText: obscure,
-        decoration: _inputDecoration(label),
-        validator: (value) {
-          if (label.toLowerCase() == 'path ktp') return null;
-          if (value == null || value.isEmpty) {
-            return 'Isi $label terlebih dahulu';
-          }
-          return null;
-        },
-      ),
     );
   }
 
