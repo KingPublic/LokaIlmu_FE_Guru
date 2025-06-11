@@ -112,7 +112,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                   BlendMode.srcIn,
                 ),
               ),
-              onPressed: onSearchTap,
+              onPressed: () => _navigateToChat(context),
             ),
             const SizedBox(width: 8),
             IconButton(
@@ -144,6 +144,10 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
 
   void _navigateToProfile(BuildContext context) {
     context.push('/edit-profile');
+  }
+
+  void _navigateToChat(BuildContext context) {
+    context.push('/chat');
   }
 
   @override

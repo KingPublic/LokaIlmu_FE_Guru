@@ -27,6 +27,11 @@ import 'repositories/edit_repository.dart';
 import 'blocs/edit_bloc.dart';
 import 'model/loginregis_model.dart';
 import 'edit_profile.dart';
+import 'repositories/chat_repository.dart';
+import 'blocs/chat_bloc.dart';
+import 'model/chat_model.dart';
+import 'chat.dart';
+import 'chat_detail.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -76,6 +81,9 @@ void setupDI() {
 
   getIt.registerFactory(() => EditProfileBloc(
         repository: getIt<EditProfileRepository>()));
+
+  getIt.registerLazySingleton<ChatRepository>(() => ChatRepository());
+  getIt.registerFactory<ChatBloc>(() => ChatBloc(getIt<ChatRepository>()));
 }
 
 
@@ -162,6 +170,29 @@ final GoRouter _router = GoRouter(
           create: (_) => getIt<EditProfileBloc>()
             ..add(LoadUserDataEvent(userData: currentUser)),
           child: const EditProfilePage(),
+        );
+      },
+    ),
+
+    // Chat routes
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) {
+        return BlocProvider(
+          create: (_) => getIt<ChatBloc>(),
+          child: const ChatPage(),
+        );
+      },
+    ),
+    
+    // Chat detail route (for future implementation)
+    GoRoute(
+      path: '/chat/:chatId',
+      builder: (context, state) {
+        final chatId = state.pathParameters['chatId']!;
+        return BlocProvider(
+          create: (_) => getIt<ChatBloc>(),
+          child: ChatDetailPage(chatId: chatId), // To be implemented later
         );
       },
     ),
