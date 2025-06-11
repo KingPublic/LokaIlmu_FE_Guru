@@ -75,6 +75,16 @@ class ChatRepository {
     return List.from(_dummyChats);
   }
 
+  // Get specific chat by ID
+  Future<ChatModel?> getChatById(String chatId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return _dummyChats.firstWhere((chat) => chat.id == chatId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Filter chats based on category
   Future<List<ChatModel>> getChatsByCategory(String category) async {
     await Future.delayed(const Duration(milliseconds: 300));

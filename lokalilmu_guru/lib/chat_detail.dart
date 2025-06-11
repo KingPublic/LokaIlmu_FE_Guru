@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'blocs/chat_bloc.dart';
-import 'model/chat_model.dart';
+import 'package:lokalilmu_guru/model/chat_model.dart';
+import 'package:lokalilmu_guru/repositories/chat_repository.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String chatId;
-  
-  const ChatDetailPage({super.key, required this.chatId});
+
+  const ChatDetailPage({
+    super.key,
+    required this.chatId,
+  });
 
   @override
   State<ChatDetailPage> createState() => _ChatDetailPageState();
@@ -17,103 +20,162 @@ class ChatDetailPage extends StatefulWidget {
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ChatRepository _chatRepository = ChatRepository();
   
-  // Dummy messages for the specific chat
-  late List<MessageModel> _messages;
-  late ChatModel _currentChat;
+  ChatModel? _currentChat;
+  List<MessageModel> _messages = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeChatData();
+    _loadChatData();
   }
 
-  void _initializeChatData() {
-    // Find the current chat (in real app, this would come from BLoC)
-    _currentChat = ChatModel(
-      id: widget.chatId,
-      name: 'Anggi Fatmawati',
-      lastMessage: 'Baik, Pak. Saya rasa itu memungkinkan...',
-      lastMessageTime: DateTime.now(),
-      type: ChatType.individual,
-      isOnline: true,
-    );
-
-    // Dummy messages for this chat
-    _messages = [
-      MessageModel(
-        id: '1',
-        chatId: widget.chatId,
-        senderId: 'other',
-        senderName: 'Anggi Fatmawati',
-        content: 'Halo Bu Anggi, saya tertarik dengan pelatihan Microsoft Excel untuk guru-guru di sekolah kami. Tapi kami punya keterbatasan anggaran, hanya Rp1.200.000 untuk 10 sesi. Apakah memungkinkan?',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-        type: MessageType.text,
-        isRead: true,
-      ),
-      MessageModel(
-        id: '2',
-        chatId: widget.chatId,
-        senderId: 'me',
-        senderName: 'Saya',
-        content: 'Halo Pak, terima kasih atas ketarikannya. Untuk 10 sesi, anggaran tersebut memang cukup terbatas. Namun, mungkin kita bisa sesuaikan durasi atau formatnya. Apakah sesi 30 menit masih bisa diterima?',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
-        type: MessageType.text,
-        isRead: true,
-      ),
-      MessageModel(
-        id: '3',
-        chatId: widget.chatId,
-        senderId: 'other',
-        senderName: 'Anggi Fatmawati',
-        content: 'Sesi 30 menit tidak masalah, Bu, yang penting guru-guru bisa memahami dasar Excel dengan baik. Kami juga berharap pelatihannya bisa selesai dalam satu bulan.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
-        type: MessageType.text,
-        isRead: true,
-      ),
-      MessageModel(
-        id: '4',
-        chatId: widget.chatId,
-        senderId: 'me',
-        senderName: 'Saya',
-        content: 'Baik, Pak. Saya rasa itu memungkinkan. Saya akan coba susun proposal jadwal dan materinya dulu. Kalau Bapak setuju, kita bisa lanjut ke deal ya.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
-        type: MessageType.text,
-        isRead: true,
-      ),
-    ];
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _sendMessage() {
-    if (_messageController.text.trim().isNotEmpty) {
-      final newMessage = MessageModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        chatId: widget.chatId,
-        senderId: 'me',
-        senderName: 'Saya',
-        content: _messageController.text.trim(),
-        timestamp: DateTime.now(),
-        type: MessageType.text,
-        isRead: false,
+  Future<void> _loadChatData() async {
+    try {
+      // Get all chats and find the current one
+      final chats = await _chatRepository.getAllChats();
+      _currentChat = chats.firstWhere(
+        (chat) => chat.id == widget.chatId,
+        orElse: () => throw Exception('Chat not found'),
       );
 
+      // Load dummy messages for this chat
+      _messages = await _generateDummyMessages(_currentChat!);
+      
       setState(() {
-        _messages.add(newMessage);
+        _isLoading = false;
       });
 
-      _messageController.clear();
-      _scrollToBottom();
+      // Mark chat as read
+      await _chatRepository.markChatAsRead(widget.chatId);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading chat: $e')),
+        );
+      }
     }
   }
 
-  void _scrollToBottom() {
+  Future<List<MessageModel>> _generateDummyMessages(ChatModel chat) async {
+    // Generate dummy messages based on chat type and content
+    final now = DateTime.now();
+    
+    if (chat.isGroup) {
+      return [
+        MessageModel(
+          id: '1',
+          content: 'Selamat pagi semua! Bagaimana kabar kalian hari ini?',
+          senderId: 'teacher_1',
+          senderName: chat.participants?.first ?? 'Teacher',
+          timestamp: now.subtract(const Duration(hours: 2)),
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '2',
+          content: 'Pagi pak! Alhamdulillah baik',
+          senderId: 'student_1',
+          senderName: 'Siswa A',
+          timestamp: now.subtract(const Duration(hours: 1, minutes: 45)),
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '3',
+          content: 'Baik pak, siap untuk pelajaran hari ini',
+          senderId: 'me',
+          senderName: 'Saya',
+          timestamp: now.subtract(const Duration(hours: 1, minutes: 30)),
+          type: MessageType.text,
+          isFromMe: true,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '4',
+          content: chat.lastMessage,
+          senderId: 'teacher_1',
+          senderName: chat.participants?.first ?? 'Teacher',
+          timestamp: chat.lastMessageTime,
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: false,
+        ),
+      ];
+    } else {
+      return [
+        MessageModel(
+          id: '1',
+          content: 'Selamat pagi, bagaimana kabarnya?',
+          senderId: chat.id,
+          senderName: chat.name,
+          timestamp: now.subtract(const Duration(hours: 3)),
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '2',
+          content: 'Pagi, alhamdulillah baik. Bagaimana dengan bapak/ibu?',
+          senderId: 'me',
+          senderName: 'Saya',
+          timestamp: now.subtract(const Duration(hours: 2, minutes: 45)),
+          type: MessageType.text,
+          isFromMe: true,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '3',
+          content: 'Alhamdulillah baik juga. Ada yang bisa saya bantu?',
+          senderId: chat.id,
+          senderName: chat.name,
+          timestamp: now.subtract(const Duration(hours: 2, minutes: 30)),
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: true,
+        ),
+        MessageModel(
+          id: '4',
+          content: chat.lastMessage,
+          senderId: chat.id,
+          senderName: chat.name,
+          timestamp: chat.lastMessageTime,
+          type: MessageType.text,
+          isFromMe: false,
+          isRead: false,
+        ),
+      ];
+    }
+  }
+
+  void _sendMessage() {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final newMessage = MessageModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      content: _messageController.text.trim(),
+      senderId: 'me',
+      senderName: 'Saya',
+      timestamp: DateTime.now(),
+      type: MessageType.text,
+      isFromMe: true,
+      isRead: true,
+    );
+
+    setState(() {
+      _messages.add(newMessage);
+    });
+
+    _messageController.clear();
+    
+    // Scroll to bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -126,176 +188,283 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   String _formatMessageTime(DateTime time) {
-    return DateFormat('HH:mm').format(time);
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inDays == 0) {
+      return DateFormat('HH:mm').format(time);
+    } else if (difference.inDays == 1) {
+      return 'Kemarin ${DateFormat('HH:mm').format(time)}';
+    } else {
+      return DateFormat('dd/MM/yy HH:mm').format(time);
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/chat');
+              }
+            },
+          ),
+          title: const Text(
+            'Loading...',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          ),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xFF0C3450)),
+        ),
+      );
+    }
+
+    if (_currentChat == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/chat');
+              }
+            },
+          ),
+          title: const Text(
+            'Chat Not Found',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          ),
+        ),
+        body: const Center(
+          child: Text('Chat tidak ditemukan'),
+        ),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Handle deal button press
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Memulai deal dengan Anggi Fatmawati')),
-          );
-        },
-        backgroundColor: const Color(0xFFFBCD5F),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.handshake, color: Color(0xFF0C3450), size: 28),
-            Text(
-              'Mulai Deal',
-              style: TextStyle(
-                color: Color(0xFF0C3450),
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/chat');
+            }
+          },
         ),
-      ),
-      body: SafeArea(
-        child: Column(
+        title: Row(
           children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.pop(),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 12),
-                  // Profile Picture
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey[300],
-                    backgroundImage: const NetworkImage(
-                      'https://randomuser.me/api/portraits/women/44.jpg',
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: _currentChat!.isGroup ? const Color(0xFF0C3450) : Colors.grey[300],
+              child: _currentChat!.avatarUrl.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        _currentChat!.avatarUrl,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            _currentChat!.isGroup ? Icons.group : Icons.person,
+                            color: Colors.white,
+                            size: 20,
+                          );
+                        },
+                      ),
+                    )
+                  : Icon(
+                      _currentChat!.isGroup ? Icons.group : Icons.person,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Name and Status
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _currentChat.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Dosen di UC Makassar',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // More options
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {
-                      // Show more options
-                    },
-                  ),
-                ],
-              ),
             ),
-
-            // Messages
+            const SizedBox(width: 12),
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  final isMe = message.senderId == 'me';
-                  final showTime = index == _messages.length - 1 || 
-                      _messages[index + 1].timestamp.difference(message.timestamp).inMinutes > 1;
-
-                  return _MessageBubble(
-                    message: message,
-                    isMe: isMe,
-                    showTime: showTime,
-                    formatTime: _formatMessageTime,
-                  );
-                },
-              ),
-            ),
-
-            // Message Input
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Color(0xFFEEEEEE), width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Attachment button
-                  IconButton(
-                    icon: const Icon(Icons.photo_camera, color: Colors.grey),
-                    onPressed: () {
-                      // Handle attachment
-                    },
+                  Text(
+                    _currentChat!.name,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  // Text input
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.grey[300]!),
+                  if (!_currentChat!.isGroup)
+                    Text(
+                      _currentChat!.isOnline ? 'Online' : 'Terakhir dilihat baru saja',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
                       ),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: const InputDecoration(
-                          hintText: 'Ketik pesan anda...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                        ),
-                        maxLines: null,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
+                    )
+                  else
+                    Text(
+                      '${_currentChat!.participants?.length ?? 0} anggota',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Send button
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Color(0xFF0C3450)),
-                    onPressed: _sendMessage,
-                  ),
                 ],
               ),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.videocam, color: Colors.black),
+            onPressed: () {
+              // Video call functionality
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.call, color: Colors.black),
+            onPressed: () {
+              // Voice call functionality
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Colors.black),
+            onPressed: () {
+              // More options
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // Messages List
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final message = _messages[index];
+                    return _MessageBubble(
+                      message: message,
+                      formatTime: _formatMessageTime,
+                      isGroup: _currentChat!.isGroup,
+                    );
+                  },
+                ),
+              ),
+
+              // Message Input
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Color(0xFFEEEEEE), width: 1),
+                  ),
+                ),
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.attach_file, color: Color(0xFF0C3450)),
+                        onPressed: () {
+                          // Attachment functionality
+                        },
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            hintText: 'Ketik pesan...',
+                            filled: true,
+                            fillColor: const Color(0xFFF5F5F5),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          maxLines: null,
+                          textInputAction: TextInputAction.newline,
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: _sendMessage,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF0C3450),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Floating Action Button - positioned above message input
+          Positioned(
+            right: 16,
+            bottom: 100, // Positioned above the message input area
+            child: FloatingActionButton(
+              onPressed: () {
+                // Scroll to bottom
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              },
+              backgroundColor: const Color(0xFF0C3450),
+              child: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -303,81 +472,104 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
 class _MessageBubble extends StatelessWidget {
   final MessageModel message;
-  final bool isMe;
-  final bool showTime;
   final String Function(DateTime) formatTime;
+  final bool isGroup;
 
   const _MessageBubble({
     required this.message,
-    required this.isMe,
-    required this.showTime,
     required this.formatTime,
+    required this.isGroup,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: message.isFromMe 
+            ? MainAxisAlignment.end 
+            : MainAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!isMe) ...[
-                const SizedBox(width: 8),
-              ],
-              Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isMe ? const Color(0xFF0C3450) : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    message.content,
-                    style: TextStyle(
-                      color: isMe ? Colors.white : Colors.black87,
-                      fontSize: 14,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              ),
-              if (isMe) ...[
-                const SizedBox(width: 8),
-              ],
-            ],
-          ),
-          
-          // Time
-          if (showTime) ...[
-            const SizedBox(height: 4),
-            Padding(
-              padding: EdgeInsets.only(
-                left: isMe ? 0 : 8,
-                right: isMe ? 8 : 0,
-              ),
+          if (!message.isFromMe && isGroup) ...[
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.grey[300],
               child: Text(
-                formatTime(message.timestamp),
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[600],
-                ),
+                message.senderName.isNotEmpty 
+                    ? message.senderName[0].toUpperCase()
+                    : 'U',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
+            const SizedBox(width: 8),
           ],
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: message.isFromMe 
+                    ? const Color(0xFF0C3450)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!message.isFromMe && isGroup)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        message.senderName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blue[700],
+                        ),
+                      ),
+                    ),
+                  Text(
+                    message.content,
+                    style: TextStyle(
+                      color: message.isFromMe ? Colors.white : Colors.black87,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        formatTime(message.timestamp),
+                        style: TextStyle(
+                          color: message.isFromMe 
+                              ? Colors.white.withOpacity(0.7)
+                              : Colors.grey[500],
+                          fontSize: 11,
+                        ),
+                      ),
+                      if (message.isFromMe) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.isRead ? Icons.done_all : Icons.done,
+                          size: 14,
+                          color: message.isRead 
+                              ? Colors.blue[300]
+                              : Colors.white.withOpacity(0.7),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

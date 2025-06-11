@@ -408,7 +408,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   child: const Text(
-                    "Get Started",
+                    "Buat Akun",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -423,7 +423,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   TextButton(
                     onPressed: _completeOnboarding,
                     child: const Text(
-                      "Skip",
+                      "Lewati",
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF0C3450),
@@ -441,7 +441,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ),
                     child: const Text(
-                      "Next",
+                      "Lanjut",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

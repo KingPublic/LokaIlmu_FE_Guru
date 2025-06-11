@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Import ini diperlukan
 import 'blocs/chat_bloc.dart';
 import 'model/chat_model.dart';
 
@@ -15,12 +16,23 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   String _selectedCategory = 'Semua';
   String _searchQuery = '';
+  bool _localeInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    // Initialize locale data
+    _initializeLocale();
     // Load chats when page is initialized
     context.read<ChatBloc>().add(LoadChatsEvent());
+  }
+
+  // Initialize locale data for Indonesian
+  Future<void> _initializeLocale() async {
+    await initializeDateFormatting('id_ID', null);
+    setState(() {
+      _localeInitialized = true;
+    });
   }
 
   void _onSearchChanged(String query) {
@@ -47,7 +59,12 @@ class _ChatPageState extends State<ChatPage> {
     } else if (difference.inDays == 1) {
       return 'Kemarin';
     } else if (difference.inDays < 7) {
-      return DateFormat('EEEE', 'id_ID').format(time);
+      // Only use locale if initialized
+      if (_localeInitialized) {
+        return DateFormat('EEEE', 'id_ID').format(time);
+      } else {
+        return DateFormat('EEEE').format(time); // Fallback to default locale
+      }
     } else {
       return DateFormat('dd/MM/yy').format(time);
     }
@@ -196,7 +213,7 @@ class _ChatPageState extends State<ChatPage> {
                               if (chat.unreadCount > 0) {
                                 context.read<ChatBloc>().add(MarkChatAsReadEvent(chat.id));
                               }
-                              // Navigate to chat detail (to be implemented)
+                              // Navigate to chat detail
                               context.go('/chat/${chat.id}');
                             },
                             onLongPress: () {
