@@ -5,7 +5,7 @@ class ChatRepository {
   static final List<ChatModel> _dummyChats = [
     ChatModel(
       id: '1',
-      name: 'Dr. Ahmad Wijaya',
+      name: 'Dr. Budi Santoso',
       lastMessage: 'Terima kasih atas pertanyaannya tentang matematika',
       lastMessageTime: DateTime.now().subtract(const Duration(minutes: 5)),
       unreadCount: 2,
@@ -15,7 +15,7 @@ class ChatRepository {
     ),
     ChatModel(
       id: '2',
-      name: 'Prof. Siti Nurhaliza',
+      name: 'Siti Rahayu, M.Pd',
       lastMessage: 'Materi fisika untuk besok sudah saya kirim',
       lastMessageTime: DateTime.now().subtract(const Duration(hours: 1)),
       unreadCount: 0,
@@ -25,7 +25,7 @@ class ChatRepository {
     ),
     ChatModel(
       id: '3',
-      name: 'Grup Matematika Kelas 12',
+      name: 'Ir. Ahmad Hidayat',
       lastMessage: 'Pak Budi: Jangan lupa tugas untuk minggu depan',
       lastMessageTime: DateTime.now().subtract(const Duration(hours: 2)),
       unreadCount: 5,
@@ -37,7 +37,7 @@ class ChatRepository {
     ),
     ChatModel(
       id: '4',
-      name: 'Drs. Bambang Sutrisno',
+      name: 'Dewi Lestari, S.Kom',
       lastMessage: 'Selamat pagi, bagaimana kabarnya?',
       lastMessageTime: DateTime.now().subtract(const Duration(days: 1)),
       unreadCount: 0,
@@ -47,7 +47,7 @@ class ChatRepository {
     ),
     ChatModel(
       id: '5',
-      name: 'Grup Bahasa Indonesia',
+      name: 'Prof. Hadi Wijaya',
       lastMessage: 'Bu Ani: Materi puisi sudah diupload',
       lastMessageTime: DateTime.now().subtract(const Duration(days: 2)),
       unreadCount: 1,

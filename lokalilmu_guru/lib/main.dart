@@ -32,6 +32,7 @@ import 'blocs/chat_bloc.dart';
 import 'model/chat_model.dart';
 import 'chat.dart';
 import 'chat_detail.dart';
+import 'mentor_profile.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -171,6 +172,14 @@ final GoRouter _router = GoRouter(
             ..add(LoadUserDataEvent(userData: currentUser)),
           child: const EditProfilePage(),
         );
+      },
+    ),
+
+    GoRoute(
+      path: '/mentor/:mentorId',
+      builder: (context, state) {
+        final mentorId = state.pathParameters['mentorId']!;
+        return MentorProfilePage(mentorId: mentorId);
       },
     ),
 

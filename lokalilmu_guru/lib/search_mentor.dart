@@ -108,7 +108,12 @@ class MentorCard extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        // Navigate to mentor profile page with the mentor's ID
+        context.go('/mentor/${mentor.id}');
+      },
+    child:  Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -229,6 +234,7 @@ class MentorCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
