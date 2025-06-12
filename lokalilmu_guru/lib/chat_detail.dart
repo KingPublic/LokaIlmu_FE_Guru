@@ -445,23 +445,45 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             ],
           ),
 
-          // Floating Action Button - positioned above message input
+          // Mulai Deal Button - positioned above message input
           Positioned(
             right: 16,
-            bottom: 100, // Positioned above the message input area
-            child: FloatingActionButton(
-              onPressed: () {
-                // Scroll to bottom
-                if (_scrollController.hasClients) {
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
+            bottom: 80, // Positioned above the message input area
+            child: SizedBox(
+              width: 65,
+              height: 65,
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Handle Mulai Deal action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Memulai Deal')),
                   );
-                }
-              },
-              backgroundColor: const Color(0xFF0C3450),
-              child: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                },
+                backgroundColor: const Color(0xFFFBCD5F),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.handshake_rounded,
+                      color: Color(0xFF0C3450),
+                      size: 28,
+                    ),
+                    SizedBox(height: 1),
+                    Text(
+                      'Mulai Deal',
+                      style: TextStyle(
+                        color: Color(0xFF0C3450),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
