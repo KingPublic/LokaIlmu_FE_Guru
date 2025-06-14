@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       if (!phoneRegex.hasMatch(value)) {
         setState(() {
-          _fieldErrors['emailOrPhone'] = 'Format nomor HP tidak valid';
+          _fieldErrors['emailOrPhone'] = 'Format email tidak valid';
         });
         return false;
       }
@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
     
     if (value.isEmpty) {
       setState(() {
-        _fieldErrors['password'] = 'Password tidak boleh kosong';
+        _fieldErrors['password'] = 'Silahkan isi password anda';
       });
       return false;
     }

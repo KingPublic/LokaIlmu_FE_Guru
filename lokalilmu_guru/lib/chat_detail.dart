@@ -34,21 +34,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   Future<void> _loadChatData() async {
     try {
-      // Get all chats and find the current one
       final chats = await _chatRepository.getAllChats();
       _currentChat = chats.firstWhere(
         (chat) => chat.id == widget.chatId,
         orElse: () => throw Exception('Chat not found'),
       );
 
-      // Load dummy messages for this chat
       _messages = await _generateDummyMessages(_currentChat!);
       
       setState(() {
         _isLoading = false;
       });
 
-      // Mark chat as read
       await _chatRepository.markChatAsRead(widget.chatId);
     } catch (e) {
       setState(() {
@@ -63,96 +60,51 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   Future<List<MessageModel>> _generateDummyMessages(ChatModel chat) async {
-    // Generate dummy messages based on chat type and content
     final now = DateTime.now();
     
-    if (chat.isGroup) {
-      return [
-        MessageModel(
-          id: '1',
-          content: 'Selamat pagi semua! Bagaimana kabar kalian hari ini?',
-          senderId: 'teacher_1',
-          senderName: chat.participants?.first ?? 'Teacher',
-          timestamp: now.subtract(const Duration(hours: 2)),
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '2',
-          content: 'Pagi pak! Alhamdulillah baik',
-          senderId: 'student_1',
-          senderName: 'Siswa A',
-          timestamp: now.subtract(const Duration(hours: 1, minutes: 45)),
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '3',
-          content: 'Baik pak, siap untuk pelajaran hari ini',
-          senderId: 'me',
-          senderName: 'Saya',
-          timestamp: now.subtract(const Duration(hours: 1, minutes: 30)),
-          type: MessageType.text,
-          isFromMe: true,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '4',
-          content: chat.lastMessage,
-          senderId: 'teacher_1',
-          senderName: chat.participants?.first ?? 'Teacher',
-          timestamp: chat.lastMessageTime,
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: false,
-        ),
-      ];
-    } else {
-      return [
-        MessageModel(
-          id: '1',
-          content: 'Selamat pagi, bagaimana kabarnya?',
-          senderId: chat.id,
-          senderName: chat.name,
-          timestamp: now.subtract(const Duration(hours: 3)),
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '2',
-          content: 'Pagi, alhamdulillah baik. Bagaimana dengan bapak/ibu?',
-          senderId: 'me',
-          senderName: 'Saya',
-          timestamp: now.subtract(const Duration(hours: 2, minutes: 45)),
-          type: MessageType.text,
-          isFromMe: true,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '3',
-          content: 'Alhamdulillah baik juga. Ada yang bisa saya bantu?',
-          senderId: chat.id,
-          senderName: chat.name,
-          timestamp: now.subtract(const Duration(hours: 2, minutes: 30)),
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: true,
-        ),
-        MessageModel(
-          id: '4',
-          content: chat.lastMessage,
-          senderId: chat.id,
-          senderName: chat.name,
-          timestamp: chat.lastMessageTime,
-          type: MessageType.text,
-          isFromMe: false,
-          isRead: false,
-        ),
-      ];
-    }
+    // HANYA INDIVIDUAL CHAT - hapus logika grup
+    return [
+      MessageModel(
+        id: '1',
+        content: 'Selamat pagi, bagaimana kabarnya?',
+        senderId: chat.id,
+        senderName: chat.name,
+        timestamp: now.subtract(const Duration(hours: 3)),
+        type: MessageType.text,
+        isFromMe: false,
+        isRead: true,
+      ),
+      MessageModel(
+        id: '2',
+        content: 'Pagi, alhamdulillah baik. Bagaimana dengan bapak/ibu?',
+        senderId: 'me',
+        senderName: 'Saya',
+        timestamp: now.subtract(const Duration(hours: 2, minutes: 45)),
+        type: MessageType.text,
+        isFromMe: true,
+        isRead: true,
+      ),
+      MessageModel(
+        id: '3',
+        content: 'Alhamdulillah baik juga. Ada yang bisa saya bantu?',
+        senderId: chat.id,
+        senderName: chat.name,
+        timestamp: now.subtract(const Duration(hours: 2, minutes: 30)),
+        type: MessageType.text,
+        isFromMe: false,
+        isRead: true,
+      ),
+      MessageModel(
+        id: '4',
+        content: chat.lastMessage,
+        senderId: chat.id,
+        senderName: chat.name,
+        timestamp: chat.lastMessageTime,
+        type: MessageType.text,
+        isFromMe: false,
+        isRead: false,
+      ),
+    ];
   }
 
   void _sendMessage() {
@@ -175,7 +127,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
     _messageController.clear();
     
-    // Scroll to bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -282,7 +233,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor: _currentChat!.isGroup ? const Color(0xFF0C3450) : Colors.grey[300],
+              backgroundColor: Colors.grey[300],
               child: _currentChat!.avatarUrl.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -292,16 +243,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         height: 40,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            _currentChat!.isGroup ? Icons.group : Icons.person,
+                          return const Icon(
+                            Icons.person,
                             color: Colors.white,
                             size: 20,
                           );
                         },
                       ),
                     )
-                  : Icon(
-                      _currentChat!.isGroup ? Icons.group : Icons.person,
+                  : const Icon(
+                      Icons.person,
                       color: Colors.white,
                       size: 20,
                     ),
@@ -320,22 +271,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (!_currentChat!.isGroup)
-                    Text(
-                      _currentChat!.isOnline ? 'Online' : 'Terakhir dilihat baru saja',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    )
-                  else
-                    Text(
-                      '${_currentChat!.participants?.length ?? 0} anggota',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
+                  // HAPUS logika grup - hanya tampilkan status online
+                  Text(
+                    _currentChat!.isOnline ? 'Online' : 'Terakhir dilihat baru saja',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
                     ),
+                  ),
                 ],
               ),
             ),
@@ -377,7 +320,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     return _MessageBubble(
                       message: message,
                       formatTime: _formatMessageTime,
-                      isGroup: _currentChat!.isGroup,
                     );
                   },
                 ),
@@ -445,16 +387,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             ],
           ),
 
-          // Mulai Deal Button - positioned above message input
+          // Mulai Deal Button
           Positioned(
             right: 16,
-            bottom: 80, // Positioned above the message input area
+            bottom: 80,
             child: SizedBox(
               width: 65,
               height: 65,
               child: FloatingActionButton(
                 onPressed: () {
-                  // Handle Mulai Deal action
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Memulai Deal')),
                   );
@@ -495,12 +436,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 class _MessageBubble extends StatelessWidget {
   final MessageModel message;
   final String Function(DateTime) formatTime;
-  final bool isGroup;
 
   const _MessageBubble({
     required this.message,
     required this.formatTime,
-    required this.isGroup,
   });
 
   @override
@@ -512,19 +451,6 @@ class _MessageBubble extends StatelessWidget {
             ? MainAxisAlignment.end 
             : MainAxisAlignment.start,
         children: [
-          if (!message.isFromMe && isGroup) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey[300],
-              child: Text(
-                message.senderName.isNotEmpty 
-                    ? message.senderName[0].toUpperCase()
-                    : 'U',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
           Flexible(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -544,18 +470,7 @@ class _MessageBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!message.isFromMe && isGroup)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        message.senderName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue[700],
-                        ),
-                      ),
-                    ),
+                  // HAPUS nama sender untuk grup karena tidak ada grup lagi
                   Text(
                     message.content,
                     style: TextStyle(

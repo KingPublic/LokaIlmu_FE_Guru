@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Import ini diperlukan
+import 'package:intl/date_symbol_data_local.dart';
 import 'blocs/chat_bloc.dart';
 import 'model/chat_model.dart';
 
@@ -21,13 +21,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize locale data
     _initializeLocale();
-    // Load chats when page is initialized
     context.read<ChatBloc>().add(LoadChatsEvent());
   }
 
-  // Initialize locale data for Indonesian
   Future<void> _initializeLocale() async {
     await initializeDateFormatting('id_ID', null);
     setState(() {
@@ -59,11 +56,10 @@ class _ChatPageState extends State<ChatPage> {
     } else if (difference.inDays == 1) {
       return 'Kemarin';
     } else if (difference.inDays < 7) {
-      // Only use locale if initialized
       if (_localeInitialized) {
         return DateFormat('EEEE', 'id_ID').format(time);
       } else {
-        return DateFormat('EEEE').format(time); // Fallback to default locale
+        return DateFormat('EEEE').format(time);
       }
     } else {
       return DateFormat('dd/MM/yy').format(time);
@@ -209,11 +205,9 @@ class _ChatPageState extends State<ChatPage> {
                           return _ChatTile(
                             chat: chat,
                             onTap: () {
-                              // Mark as read when tapped
                               if (chat.unreadCount > 0) {
                                 context.read<ChatBloc>().add(MarkChatAsReadEvent(chat.id));
                               }
-                              // Navigate to chat detail
                               context.go('/chat/${chat.id}');
                             },
                             onLongPress: () {
@@ -293,12 +287,13 @@ class _ChatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['Semua', 'Belum Dibaca', 'Favorit', 'Grup'];
+    // HAPUS 'Grup' dari categories
+    final categories = ['Semua', 'Belum Dibaca', 'Favorit'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Search bar with blue border and rounded corners
+        // Search bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: TextField(
@@ -384,12 +379,12 @@ class _ChatTile extends StatelessWidget {
         color: Colors.white,
         child: Row(
           children: [
-            // Avatar
+            // Avatar - HAPUS logika grup
             Stack(
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: chat.isGroup ? const Color(0xFF0C3450) : Colors.grey[300],
+                  backgroundColor: Colors.grey[300],
                   child: chat.avatarUrl.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(28),
@@ -399,22 +394,22 @@ class _ChatTile extends StatelessWidget {
                             height: 56,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                chat.isGroup ? Icons.group : Icons.person,
+                              return const Icon(
+                                Icons.person,
                                 color: Colors.white,
                                 size: 28,
                               );
                             },
                           ),
                         )
-                      : Icon(
-                          chat.isGroup ? Icons.group : Icons.person,
+                      : const Icon(
+                          Icons.person,
                           color: Colors.white,
                           size: 28,
                         ),
                 ),
-                // Online indicator
-                if (chat.isOnline && !chat.isGroup)
+                // Online indicator - hanya untuk individual
+                if (chat.isOnline)
                   Positioned(
                     bottom: 0,
                     right: 0,
