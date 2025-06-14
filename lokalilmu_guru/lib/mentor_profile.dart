@@ -326,7 +326,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFC107),
                                     foregroundColor: const Color(0xFF1B3C73),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(vertical: 22),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -341,12 +341,12 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                   onPressed: () {
                                     // Navigate to booking
                                   },
-                                  icon: const Icon(Icons.calendar_today),
+                                  icon: const Icon(Icons.calendar_today, color: Colors.white),
                                   label: const Text('Pesan Sesi'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF1B3C73),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(vertical: 22),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -357,7 +357,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                           ),
                         ),
                         
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         
                         // Previous Training Section
                         Padding(
@@ -372,42 +372,46 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 14),
                               
-                              // Training Cards
-                              Row(
-                                children: [
-                                  // Excel Training Card
-                                  Expanded(
-                                    child: _buildTrainingCard(
-                                      price: 'Rp2.500.000',
-                                      participants: 30,
-                                      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Microsoft_Office_Excel_%282019%E2%80%93present%29.svg/826px-Microsoft_Office_Excel_%282019%E2%80%93present%29.svg.png',
-                                      title: 'Pelatihan Intensif ${mentor.categories.first}',
-                                      institution: 'SMP Dion Harapan mengikuti',
-                                      dateRange: '19 Feb - 10 Mar 2025',
+                              // Training Cards - Fixed with proper constraints
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    // Excel Training Card
+                                    Expanded(
+                                      child: _buildTrainingCard(
+                                        price: 'Rp2.500.000',
+                                        participants: 30,
+                                        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Microsoft_Office_Excel_%282019%E2%80%93present%29.svg/826px-Microsoft_Office_Excel_%282019%E2%80%93present%29.svg.png',
+                                        title: 'Pelatihan Intensif ${mentor.categories.isNotEmpty ? mentor.categories.first : 'Microsoft Excel'}',
+                                        institution: 'SMP Dion Harapan mengikuti',
+                                        dateRange: '19 Feb - 10 Mar 2025',
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  
-                                  // AI Training Card
-                                  Expanded(
-                                    child: _buildTrainingCard(
-                                      price: 'Rp1.500.000',
-                                      participants: 23,
-                                      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png',
-                                      title: 'Pemanfaatan AI dalam ${mentor.categories.last}',
-                                      institution: 'SMP Golden Gate mengikuti',
-                                      dateRange: '15 Jan - 15 Feb 2025',
+                                    const SizedBox(width: 12),
+                                    
+                                    // AI Training Card
+                                    Expanded(
+                                      child: _buildTrainingCard(
+                                        price: 'Rp1.500.000',
+                                        participants: 23,
+                                        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png',
+                                        title: 'Pemanfaatan AI dalam ${mentor.categories.isNotEmpty ? mentor.categories.last : 'Pembelajaran'}',
+                                        institution: 'SMP Golden Gate mengikuti',
+                                        dateRange: '15 Jan - 15 Feb 2025',
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                         
-                        const SizedBox(height: 24),
+                        // Bottom padding to ensure content doesn't get cut off by navbar
+                        const SizedBox(height: 50),
                       ],
                     ),
                   ),
@@ -488,8 +492,15 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
     required String title,
     required String institution,
     required String dateRange,
+    double? width,
+    double? height,
   }) {
     return Container(
+      width: width ?? 140,
+      constraints: BoxConstraints(
+        minHeight: height ?? 200,
+        maxHeight: (height ?? 200) + 40, // Tambah ruang untuk fleksibilitas
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -498,7 +509,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Price and Participants
+          // Price and Participants - Fixed height
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: const BoxDecoration(
@@ -511,25 +522,29 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  price,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                Flexible(
+                  child: Text(
+                    price,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.people,
-                      size: 14,
+                      size: 12,
                       color: Colors.amber,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     Text(
                       '$participants',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -539,52 +554,64 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
             ),
           ),
           
-          // Training Image
-          AspectRatio(
-            aspectRatio: 1.5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                image: DecorationImage(
-                  image: NetworkImage(image),
-                  fit: BoxFit.contain,
-                ),
+          // Training Image - Fixed height
+          Container(
+            height: 95,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              image: DecorationImage(
+                image: NetworkImage(image),
+                fit: BoxFit.contain,
               ),
             ),
           ),
           
-          // Training Details
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  institution,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
+          // Training Details - Flexible height
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Institution - Fixed 1 line
+                  Text(
+                    institution,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                  const SizedBox(height: 4),
+                  
+                  // Title - Flexible, bisa 2-3 baris
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        height: 1, // Line height untuk readability
+                      ),
+                      maxLines: 2, // Izinkan sampai 3 baris
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  dateRange,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
+                  
+                  // Date Range - Fixed 1 line, selalu di bawah
+                  Text(
+                    dateRange,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
