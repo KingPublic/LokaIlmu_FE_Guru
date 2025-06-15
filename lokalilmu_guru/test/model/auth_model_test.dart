@@ -11,6 +11,7 @@ void main() {
     setUp(() {
       testTeacher = RegisterModel(
         namaLengkap: 'John Doe',
+        noHP: '08123456789',
         email: 'john.doe@example.com',
         password: 'password123',
         confirmPassword: 'password123',

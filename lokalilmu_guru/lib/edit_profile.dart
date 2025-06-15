@@ -185,14 +185,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _emailController.text = user.email;
     _nipController.text = user.nip;
     
-    // Find and set school berdasarkan nama sekolah
+    // Handle sekolah - perlu disesuaikan dengan data yang tersedia
     try {
       selectedSchool = schools.firstWhere(
-        (school) => school.namaSekolah == user.namaSekolah,
+        (school) => school.npsn == user.npsn, // Bandingkan berdasarkan NPSN
+        orElse: () => schools.first,
       );
       _npsnController.text = selectedSchool?.npsn ?? user.npsn;
     } catch (e) {
-      // Jika sekolah tidak ditemukan, buat entry baru atau gunakan yang pertama
       selectedSchool = schools.first;
       _npsnController.text = user.npsn;
     }
@@ -450,6 +450,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final updatedUser = RegisterModel(
       namaLengkap: _namaController.text.trim(),
       email: _emailController.text.trim(),
+      noHP: _noHpController.text.trim(),
       password: _newPasswordController.text.isNotEmpty ? _newPasswordController.text : _originalUserData?.password ?? "",
       confirmPassword: _confirmPasswordController.text,
       nip: _nipController.text.trim(),
