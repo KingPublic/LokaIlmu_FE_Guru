@@ -1,6 +1,7 @@
 class RegisterModel {
   final String namaLengkap;
   final String email;
+  final String noHP;
   final String password;
   final String confirmPassword;
   final String nip;
@@ -14,6 +15,7 @@ class RegisterModel {
   RegisterModel({
     required this.namaLengkap,
     required this.email,
+    required this.noHP,
     required this.password,
     required this.confirmPassword,
     required this.nip,
@@ -29,6 +31,7 @@ class RegisterModel {
     return RegisterModel(
       namaLengkap: json['namaLengkap'],
       email: json['email'],
+      noHP: json['no_hp'] ?? '', // Assuming no_hp is optional
       password: json['password'],
       confirmPassword: json['confirmPassword'],
       nip: json['nip'],
