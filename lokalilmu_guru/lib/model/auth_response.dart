@@ -4,13 +4,15 @@ class AuthResponse {
   final bool success;
   final String? message;
   final String? token;
-  final RegisterModel? teacher;
+  final RegisterModel? user;
+  final RegisterModel? profilGuru;
 
   AuthResponse({
     required this.success,
     this.message,
     this.token,
-    this.teacher,
+    this.user,
+    this.profilGuru,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
@@ -18,13 +20,24 @@ class AuthResponse {
       success: json['success'],
       message: json['message'],
       token: json['token'],
-      teacher: json['teacher'] != null ? RegisterModel.fromJson(json['teacher']) : null,
+      user: json['user'] != null && json['user'] is Map 
+        ? RegisterModel.fromJson(json['user'])
+        : null,
+      profilGuru: json['profil_guru'] != null && json['profil_guru'] is Map
+          ? RegisterModel.fromJson(json['profil_guru'])
+          : null,
     );
   }
 
-  get user => null;
-
-  get profilGuru => null;
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+      'token': token,
+      'user': user?.toJson(),
+      'profil_guru': profilGuru?.toJson(),
+    };
+  }
 
   get errors => null;
 }

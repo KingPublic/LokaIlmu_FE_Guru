@@ -23,6 +23,8 @@ void main() {
 
       registerModel = RegisterModel(
         namaLengkap: 'John Doe',
+        noHP: '08123456789',
+        // Assuming noHP is optional, you can set it to an empty string or null
         email: 'john.doe@example.com',
         password: 'password123',
         confirmPassword: 'password123',

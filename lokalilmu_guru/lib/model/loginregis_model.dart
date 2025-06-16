@@ -10,7 +10,7 @@ class RegisterModel {
   final String tingkatPengajar;
   final String spesialisasi;
   final String ktpPath;
-  final DateTime tglLahir;
+  final DateTime? tglLahir;
 
   RegisterModel({
     required this.namaLengkap,
@@ -29,19 +29,43 @@ class RegisterModel {
 
   factory RegisterModel.fromJson(Map<String, dynamic> json) {
     return RegisterModel(
-      namaLengkap: json['namaLengkap'],
-      email: json['email'],
+      namaLengkap: json['namaLengkap'] ?? '',
+      email: json['email'] ?? '',
       noHP: json['no_hp'] ?? '', // Assuming no_hp is optional
-      password: json['password'],
-      confirmPassword: json['confirmPassword'],
-      nip: json['nip'],
-      namaSekolah: json['namaSekolah'],
-      npsn: json['npsn'],
-      tingkatPengajar: json['tingkatPengajar'],
-      spesialisasi: json['spesialisasi'],
-      ktpPath: json['ktpPath'],
-      tglLahir: json['tglLahir'],
+      password: json['password'] ?? '',
+      confirmPassword: json['confirmPassword'] ?? '',
+      nip: json['nip'] ?? '',
+      namaSekolah: json['namaSekolah'] ?? '',
+      npsn: json['npsn'] ?? '',
+      tingkatPengajar: json['tingkatPengajar'] ?? '',
+      spesialisasi: json['spesialisasi'] ?? '',
+      ktpPath: json['ktpPath'] ?? '',
+      tglLahir: json['tglLahir'] != null 
+          ? DateTime.tryParse(json['tglLahir']) 
+          : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'namaLengkap': namaLengkap,
+      'email': email,
+      'password': password,
+      'confirmPassword': confirmPassword,
+      'nip': nip,
+      'namaSekolah': namaSekolah,
+      'npsn': npsn,
+      'tingkatPengajar': tingkatPengajar,
+      'spesialisasi': spesialisasi.contains(',')
+          ? spesialisasi.split(',').map((s) => s.trim()).toList()
+          : [spesialisasi],
+      'ktpPath': ktpPath,
+      'no_hp': noHP,
+      'tglLahir': tglLahir?.toIso8601String(),
+      // Add mapping for API-specific fields if needed
+      'NUPTK': nip, // Map nip to NUPTK if API expects it
+      'pathKTP': ktpPath, // Alternative field name
+    };
   }
 }
 

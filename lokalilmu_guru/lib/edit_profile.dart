@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../model/loginregis_model.dart';
 import '../model/school_model.dart';
 import 'blocs/edit_bloc.dart';
@@ -52,7 +53,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   // Data
   final List<SchoolModel> schools = [
-    SchoolModel(idSekolah: 1, npsn: "12345678", namaSekolah: "SMA Negeri 1 Jakarta"),
+    SchoolModel(idSekolah: 1, npsn: "123123123", namaSekolah: "SMA Negeri 1 Jakarta"),
     SchoolModel(idSekolah: 2, npsn: "23456789", namaSekolah: "SMA Negeri 2 Jakarta"),
     SchoolModel(idSekolah: 3, npsn: "34567890", namaSekolah: "SMP Negeri 1 Jakarta"),
     SchoolModel(idSekolah: 4, npsn: "45678901", namaSekolah: "SMP Negeri 2 Jakarta"),
@@ -188,8 +189,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // Handle sekolah - perlu disesuaikan dengan data yang tersedia
     try {
       selectedSchool = schools.firstWhere(
-        (school) => school.npsn == user.npsn, // Bandingkan berdasarkan NPSN
-        orElse: () => schools.first,
+        (school) => school.npsn == user.npsn,
+        orElse: () => schools.first
       );
       _npsnController.text = selectedSchool?.npsn ?? user.npsn;
     } catch (e) {
@@ -198,7 +199,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
     _originalSelectedSchool = selectedSchool;
     
-    selectedLevel = user.tingkatPengajar;
+    // When populating fields
+    selectedLevel = teachingLevels.firstWhere(
+      (level) => level.toLowerCase() == user.tingkatPengajar.toLowerCase(),
+      orElse: () => teachingLevels.first
+    );
     _originalSelectedLevel = selectedLevel;
     
     // Parse specializations
@@ -501,6 +506,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
       },
       builder: (context, state) {
+        if (state is EditProfileLoading || _originalUserData == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final isLoading = state is EditProfileLoading || state is EditProfileUpdating;
 
         return Scaffold(

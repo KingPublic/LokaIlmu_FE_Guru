@@ -56,13 +56,13 @@ void main() {
         success: true,
         message: 'Login successful',
         token: 'abc123token',
-        teacher: testTeacher,
+        user: testTeacher,
       );
 
       expect(authResponse.success, equals(true));
       expect(authResponse.message, equals('Login successful'));
       expect(authResponse.token, equals('abc123token'));
-      expect(authResponse.teacher, equals(testTeacher));
+      expect(authResponse.user, equals(testTeacher));
     });
 
     test('should create failed AuthResponse', () {
@@ -74,7 +74,7 @@ void main() {
       expect(authResponse.success, equals(false));
       expect(authResponse.message, equals('Invalid credentials'));
       expect(authResponse.token, isNull);
-      expect(authResponse.teacher, isNull);
+      expect(authResponse.user, isNull);
     });
 
     test('should create AuthResponse from successful JSON', () {
@@ -83,9 +83,9 @@ void main() {
       expect(authResponse.success, equals(true));
       expect(authResponse.message, equals('Login successful'));
       expect(authResponse.token, equals('abc123token'));
-      expect(authResponse.teacher, isNotNull);
-      expect(authResponse.teacher!.namaLengkap, equals('John Doe'));
-      expect(authResponse.teacher!.email, equals('john.doe@example.com'));
+      expect(authResponse.user, isNotNull);
+      expect(authResponse.user!.namaLengkap, equals('John Doe'));
+      expect(authResponse.user!.email, equals('john.doe@example.com'));
     });
 
     test('should create AuthResponse from failed JSON', () {
@@ -94,7 +94,7 @@ void main() {
       expect(authResponse.success, equals(false));
       expect(authResponse.message, equals('Invalid credentials'));
       expect(authResponse.token, isNull);
-      expect(authResponse.teacher, isNull);
+      expect(authResponse.user, isNull);
     });
 
     test('should handle JSON without optional fields', () {
@@ -107,7 +107,7 @@ void main() {
       expect(authResponse.success, equals(true));
       expect(authResponse.message, isNull);
       expect(authResponse.token, isNull);
-      expect(authResponse.teacher, isNull);
+      expect(authResponse.user, isNull);
     });
 
     test('should return null for deprecated getters', () {
