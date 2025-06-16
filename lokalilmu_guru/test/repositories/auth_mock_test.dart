@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
+
 import 'package:dio/dio.dart';
-import 'package:lokalilmu_guru/repositories/auth_repository.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:lokalilmu_guru/model/auth_response.dart';
+import 'package:lokalilmu_guru/repositories/auth_repository.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 // Generate mock untuk Dio
 @GenerateMocks([Dio])
@@ -230,10 +230,10 @@ void main() {
       expect(result.success, true, reason: 'Login should be successful');
       expect(result.message, 'Login berhasil', reason: 'Message should match');
       expect(result.token, 'abc123', reason: 'Token should match');
-      expect(result.teacher, isNotNull, reason: 'Teacher should not be null');
-      expect(result.teacher?.namaLengkap, 'Test User', reason: 'Teacher name should match');
-      expect(result.teacher?.email, email, reason: 'Teacher email should match');
-      
+      expect(result.user, isNotNull, reason: 'User should not be null');
+      expect(result.user?.namaLengkap, 'Test User', reason: 'User name should match');
+      expect(result.user?.email, email, reason: 'User email should match');
+
       verify(mockDio.post(
         any,
         data: anyNamed('data'),
@@ -269,7 +269,7 @@ void main() {
       // Assert
       expect(result.success, false, reason: 'Login should fail');
       expect(result.message, 'Email atau password salah', reason: 'Error message should match');
-      expect(result.teacher, isNull, reason: 'Teacher should be null for failed login');
+      expect(result.user, isNull, reason: 'User should be null for failed login');
       expect(result.token, isNull, reason: 'Token should be null for failed login');
       
       verify(mockDio.post(
@@ -331,10 +331,10 @@ void main() {
       expect(result.success, true, reason: 'Registration should be successful');
       expect(result.message, 'Registrasi berhasil', reason: 'Message should match');
       expect(result.token, 'regtoken123', reason: 'Token should match');
-      expect(result.teacher, isNotNull, reason: 'Teacher should not be null');
-      expect(result.teacher?.namaLengkap, 'John Doe', reason: 'Teacher name should match');
-      expect(result.teacher?.email, 'john@example.com', reason: 'Teacher email should match');
-      
+      expect(result.user, isNotNull, reason: 'User should not be null');
+      expect(result.user?.namaLengkap, 'John Doe', reason: 'User name should match');
+      expect(result.user?.email, 'john@example.com', reason: 'User email should match');
+
       verify(mockDio.post(
         any,
         data: anyNamed('data'),
@@ -377,7 +377,7 @@ void main() {
       // Assert
       expect(result.success, false, reason: 'Registration should fail');
       expect(result.message, contains('email'), reason: 'Should contain email error message');
-      expect(result.teacher, isNull, reason: 'Teacher should be null for failed registration');
+      expect(result.user, isNull, reason: 'User should be null for failed registration');
       expect(result.token, isNull, reason: 'Token should be null for failed registration');
       
       verify(mockDio.post(

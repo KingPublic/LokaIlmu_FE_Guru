@@ -59,6 +59,10 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                     userName = state.user?.namaLengkap ?? 
                               state.profilGuru?.namaLengkap ?? 
                               'User';
+
+                    // Debugging
+                    debugPrint('User name from state: ${state.user?.namaLengkap}');
+                    debugPrint('User object: ${state.user?.toJson()}');
                     isAuthenticated = true;
                   } else if (state is AuthRegistrationSuccess) {
                     userName = state.user?.namaLengkap ?? 

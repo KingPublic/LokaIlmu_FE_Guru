@@ -61,37 +61,22 @@ class AuthRepository {
       // final responseData = jsonDecode(response.body);
       debugPrint("Response Body: ${response.data}");
       final responseData = response.data;
-      
-    //   if (response.statusCode != null && response.statusCode >= 200 && response.statusCode < 300) {
-    //     final data = responseData['data'];
-    //     return AuthResponse.fromJson({
-    //       'success': true,
-    //       'message': responseData['message'],
-    //       'user': data['user'],
-    //       'profil_guru': data['profil_guru'],
-    //       'token': data['token'],
-    //     });
-    //   } else {
-    //     return AuthResponse.fromJson({
-    //       'success': false,
-    //       'message': responseData['message'],
-    //       'errors': responseData['errors'],
-    //     });
-    //   }
-    // } catch (e) {
-    //   return AuthResponse(
-    //     success: false,
-    //     message: 'Terjadi kesalahan: ${e.toString()}',
-    //   );
-    // }
 
     if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
         final data = responseData['data'];
+        final userData = data['user'] ?? {};
+        final profilGuruData = data['profil_guru'] ?? {};
+
+        debugPrint('Raw API response: $responseData');
+        debugPrint('User data: ${data['user']}');
+        debugPrint('Profil guru data: ${data['profil_guru']}');
+        debugPrint('Token: ${data['token']}');
+
         return AuthResponse.fromJson({
           'success': true,
           'message': responseData['message'],
-          'user': data['user'],
-          'profil_guru': data['profil_guru'],
+          'user': userData,
+          'profil_guru': profilGuruData,
           'token': data['token'],
         });
       } else {
