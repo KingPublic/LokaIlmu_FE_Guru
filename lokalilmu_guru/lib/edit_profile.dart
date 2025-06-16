@@ -53,7 +53,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   // Data
   final List<SchoolModel> schools = [
-    SchoolModel(idSekolah: 1, npsn: "123123123", namaSekolah: "SMA Negeri 1 Jakarta"),
+    SchoolModel(idSekolah: 1, npsn: "12345678", namaSekolah: "SMA Negeri 1 Jakarta"),
     SchoolModel(idSekolah: 2, npsn: "23456789", namaSekolah: "SMA Negeri 2 Jakarta"),
     SchoolModel(idSekolah: 3, npsn: "34567890", namaSekolah: "SMP Negeri 1 Jakarta"),
     SchoolModel(idSekolah: 4, npsn: "45678901", namaSekolah: "SMP Negeri 2 Jakarta"),
