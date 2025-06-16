@@ -6,6 +6,7 @@ import 'package:lokalilmu_guru/model/schedule_item.dart';
 import 'package:lokalilmu_guru/model/training_item.dart';
 import 'package:lokalilmu_guru/widgets/common/dashboard_header.dart';
 import 'package:lokalilmu_guru/widgets/common/navbar.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -146,8 +147,13 @@ class CurrentTrainingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = training.progressPercentage.clamp(0.0, 1.0);
+
+    return GestureDetector(
+      onTap: () {
+        context.go('/materi-pelatihan/${training.id}');
+      },
     
-    return Container(
+    child: Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
@@ -215,6 +221,7 @@ class CurrentTrainingWidget extends StatelessWidget {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -258,62 +265,86 @@ class ScheduleItemWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Tentukan sessionId berdasarkan title schedule
+        String sessionId = _getSessionIdFromTitle(schedule.title);
+        
+        // Navigate ke materi pelatihan dengan sessionId
+        context.go('/materi-pelatihan/1?sessionId=$sessionId');
+      },
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            child: const Icon(Icons.calendar_today, color: Colors.black),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  schedule.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatScheduleTime(schedule.startDate, schedule.endDate),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.calendar_today, color: Colors.black),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    schedule.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatScheduleTime(schedule.startDate, schedule.endDate),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Format schedule time (e.g., "21 Apr 2023 12:00 - 15:00")
+  // Helper method untuk mendapatkan sessionId dari title
+  String _getSessionIdFromTitle(String title) {
+    if (title.contains('Sesi 1')) {
+      return 'session_1';
+    } else if (title.contains('Sesi 2')) {
+      return 'session_2';
+    }
+    // Default ke session pertama jika tidak ditemukan
+    return 'session_1';
+  }
+
   String _formatScheduleTime(DateTime start, DateTime end) {
     final dateFormat = DateFormat('dd MMM yyyy');
     final timeFormat = DateFormat('HH:mm');

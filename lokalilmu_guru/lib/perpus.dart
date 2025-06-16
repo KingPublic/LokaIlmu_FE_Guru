@@ -494,7 +494,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                                                 onPressed: () {
                                                   perpusCubit.openBookFile(widget.book);
                                                 },
-                                                icon: const Icon(Icons.menu_book, size: 18),
+                                                icon: const Icon(Icons.menu_book, size: 18, color: Colors.white),
                                                 label: const Text('Baca'),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: const Color(0xFF1B3C73),
