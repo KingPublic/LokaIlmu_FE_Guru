@@ -59,7 +59,6 @@ final getIt = GetIt.instance;
 
 void setupDI() {
   getIt.registerLazySingleton(() => OnboardingService());
-  getIt.registerLazySingleton(() => ForumRepository()); 
 
   // Register repositories
   getIt.registerLazySingleton(() => CourseRepository());
@@ -69,6 +68,8 @@ void setupDI() {
   getIt.registerLazySingleton(() => BookRepository());
 
   getIt.registerLazySingleton(() => MentorRepository()); 
+
+  getIt.registerLazySingleton(() => ForumRepository(profileRepository: getIt<EditProfileRepository>(),)); 
 
   getIt.registerFactory(() => DashboardBloc(
         courseRepository: getIt<CourseRepository>()));

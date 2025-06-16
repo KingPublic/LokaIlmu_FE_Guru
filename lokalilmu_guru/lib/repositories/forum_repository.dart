@@ -1,6 +1,12 @@
 import '../model/forum_model.dart';
+import 'edit_repository.dart';
 
 class ForumRepository {
+
+  final EditProfileRepository _profileRepository;
+
+  ForumRepository({required EditProfileRepository profileRepository})
+      : _profileRepository = profileRepository;
   // Dummy data untuk forum posts
   List<ForumPost> _posts = [
     ForumPost(
@@ -84,12 +90,14 @@ class ForumRepository {
   Future<ForumPost> createPost(CreatePostRequest request) async {
     // Simulate API delay
     await Future.delayed(Duration(seconds: 1));
+
+    final user = await _profileRepository.getCurrentUser();
     
     final newPost = ForumPost(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: request.title,
       content: request.content,
-      authorName: 'Current User', // In real app, get from auth
+      authorName: user?.namaLengkap ?? 'Current User',
       authorRole: 'Guru',
       authorAvatar: 'asset/images/default_avatar.jpg',
       category: request.category,
