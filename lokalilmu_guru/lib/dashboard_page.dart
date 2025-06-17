@@ -7,10 +7,43 @@ import 'package:lokalilmu_guru/model/training_item.dart';
 import 'package:lokalilmu_guru/widgets/common/dashboard_header.dart';
 import 'package:lokalilmu_guru/widgets/common/navbar.dart';
 import 'package:go_router/go_router.dart';
+import 'repositories/edit_repository.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
 
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  String? userName;
+  bool isLoadingUser = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Assuming you have a profile repository instance
+      // Replace this with your actual repository instance
+      final profileRepository = EditProfileRepository(); // Replace with your actual repository
+      final user = await profileRepository.getCurrentUser();
+      
+      setState(() {
+        userName = user?.namaLengkap ?? 'User'; // Use 'User' as fallback if name is null
+        isLoadingUser = false;
+      });
+    } catch (e) {
+      setState(() {
+        userName = 'User'; // Fallback name in case of error
+        isLoadingUser = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,8 +95,8 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Selamat datang, Kalvin!',
+            Text(
+              'Selamat datang, $userName!',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
