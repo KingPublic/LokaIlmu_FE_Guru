@@ -1,13 +1,12 @@
 import 'package:lokalilmu_guru/model/schedule_item.dart';
 import 'package:lokalilmu_guru/model/training_item.dart';
+import 'package:lokalilmu_guru/model/training_material.dart';
 
 class CourseRepository {
-  // In a real app, this would fetch data from an API or local database
+  // Existing methods - JANGAN DIHAPUS
   Future<List<ScheduleItem>> getUpcomingSchedules() async {
-    // Simulate API delay
     await Future.delayed(const Duration(milliseconds: 800));
     
-    // Return mock data
     return [
       ScheduleItem(
         id: '1',
@@ -25,10 +24,8 @@ class CourseRepository {
   }
 
   Future<TrainingItem?> getCurrentTraining() async {
-    // Simulate API delay
     await Future.delayed(const Duration(milliseconds: 800));
     
-    // Return mock data
     return TrainingItem(
       id: '1',
       title: 'Pengenalan & Dasar-Dasar Excel',
@@ -39,17 +36,70 @@ class CourseRepository {
     );
   }
 
-  // For demo purposes - toggle between having courses and not having courses
   Future<bool> hasJoinedCourses() async {
-    // In a real app, this would check if the user has any courses
-    // For demo, we'll return true to show courses
     return true;
   }
 
-  // For demo purposes - toggle between states
   Future<void> toggleCourseState(bool newState) async {
-    // In a real app, this would update a user preference or setting
     await Future.delayed(const Duration(milliseconds: 300));
-    // The state is managed in the BLoC
+  }
+
+  // NEW METHODS - Update dengan TrainingMaterialType
+  Future<TrainingMaterial?> getTrainingMaterial(String trainingId) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    if (trainingId == '1') {
+      return TrainingMaterial(
+        id: 'material_1',
+        trainingId: trainingId,
+        title: 'Pengenalan & Dasar-Dasar Excel',
+        duration: '30 minutes / sesi',
+        participantCount: '30 guru SMP',
+        sessions: [
+          TrainingSession(
+            id: 'session_1',
+            title: 'Sesi 1: Mengenal Microsoft Excel & Navigasi Dasar',
+            materials: [
+              MaterialItem(
+                id: 'slide_1',
+                title: 'Slide Pengenalan',
+                subtitle: 'PowerPoint • 12 halaman',
+                type: TrainingMaterialType.slide, // Update ke TrainingMaterialType
+              ),
+              MaterialItem(
+                id: 'video_1',
+                title: 'Penjelasan Konsep',
+                subtitle: 'Video • 8:45 menit',
+                type: TrainingMaterialType.video, // Update ke TrainingMaterialType
+              ),
+            ],
+          ),
+          TrainingSession(
+            id: 'session_2',
+            title: 'Sesi 2: Format Data & Pengolahan Dasar',
+            materials: [
+              MaterialItem(
+                id: 'example_1',
+                title: 'Contoh Soal',
+                subtitle: '',
+                type: TrainingMaterialType.example, // Update ke TrainingMaterialType
+                description: 'Berikut merupakan beberapa contoh soal yang dapat digunakan sebagai latihan.',
+              ),
+            ],
+          ),
+        ],
+        teachingNotes: [
+          'Gunakan contoh yang relevan agar murid lebih mudah memahami.',
+          'Dorong murid untuk praktik langsung dalam setiap sesi.',
+          'Berikan quiz atau diskusi di akhir sesi untuk memperkuat pemahaman.',
+        ],
+      );
+    }
+    
+    return null;
+  }
+
+  Future<void> completeTraining(String trainingId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
   }
 }

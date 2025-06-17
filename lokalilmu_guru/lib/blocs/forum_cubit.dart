@@ -97,11 +97,9 @@ class ForumCubit extends Cubit<ForumState> {
 
   Future<void> upvotePost(String postId) async {
     try {
+      // Repository sudah handle logika voting, langsung panggil saja
       final updatedPost = await repository.upvotePost(postId);
-      final updatedPosts = state.posts.map((post) =>
-        post.id == postId ? updatedPost : post
-      ).toList();
-      emit(state.copyWith(posts: updatedPosts));
+      _updatePostInState(postId, updatedPost);
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to upvote: ${e.toString()}'));
     }
@@ -109,14 +107,19 @@ class ForumCubit extends Cubit<ForumState> {
 
   Future<void> downvotePost(String postId) async {
     try {
+      // Repository sudah handle logika voting, langsung panggil saja
       final updatedPost = await repository.downvotePost(postId);
-      final updatedPosts = state.posts.map((post) =>
-        post.id == postId ? updatedPost : post
-      ).toList();
-      emit(state.copyWith(posts: updatedPosts));
+      _updatePostInState(postId, updatedPost);
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to downvote: ${e.toString()}'));
     }
+  }
+
+  void _updatePostInState(String postId, ForumPost updatedPost) {
+    final updatedPosts = state.posts.map((post) =>
+      post.id == postId ? updatedPost : post
+    ).toList();
+    emit(state.copyWith(posts: updatedPosts));
   }
 
   void clearMessages() {

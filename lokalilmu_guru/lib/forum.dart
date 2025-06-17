@@ -281,15 +281,17 @@ class _ForumPageState extends State<ForumPage> {
           // Action buttons
           Row(
             children: [
-              _buildActionButton(
+              _buildVoteButton(
                 icon: Icons.keyboard_arrow_up,
                 label: post.upvotes.toString(),
+                isSelected: post.userVoteStatus == VoteStatus.upvoted,
                 onTap: () => context.read<ForumCubit>().upvotePost(post.id),
               ),
               const SizedBox(width: 16),
-              _buildActionButton(
+              _buildVoteButton(
                 icon: Icons.keyboard_arrow_down,
                 label: post.downvotes.toString(),
+                isSelected: post.userVoteStatus == VoteStatus.downvoted,
                 onTap: () => context.read<ForumCubit>().downvotePost(post.id),
               ),
               const SizedBox(width: 16),
@@ -306,6 +308,51 @@ class _ForumPageState extends State<ForumPage> {
       ),
     );
   }
+
+Widget _buildVoteButton({
+  required IconData icon,
+  required String label,
+  required bool isSelected,
+  required VoidCallback onTap,
+}) {
+  return InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(6),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFF1B3C73).withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        border: isSelected 
+          ? Border.all(color: const Color(0xFF1B3C73), width: 1)
+          : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: isSelected ? 22 : 20, // Ukuran lebih besar saat selected
+            color: isSelected 
+              ? const Color(0xFF1B3C73)
+              : Colors.grey[600],
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected 
+                ? const Color(0xFF1B3C73)
+                : Colors.grey[600],
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Widget _buildActionButton({
     required IconData icon,

@@ -33,6 +33,8 @@ import 'model/chat_model.dart';
 import 'chat.dart';
 import 'chat_detail.dart';
 import 'mentor_profile.dart';
+import 'blocs/training_material_bloc.dart';
+import 'materi_pelatihan.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -72,6 +74,9 @@ void setupDI() {
   getIt.registerLazySingleton(() => ForumRepository(profileRepository: getIt<EditProfileRepository>(),)); 
 
   getIt.registerFactory(() => DashboardBloc(
+        courseRepository: getIt<CourseRepository>()));
+
+  getIt.registerFactory(() => TrainingMaterialBloc(
         courseRepository: getIt<CourseRepository>()));
   
   getIt.registerFactory(() => PerpusCubit(getIt<BookRepository>()));
@@ -175,6 +180,22 @@ final GoRouter _router = GoRouter(
         );
       },
     ),
+
+    GoRoute(
+  path: '/materi-pelatihan/:trainingId',
+  builder: (context, state) {
+    final trainingId = state.pathParameters['trainingId']!;
+    final sessionId = state.uri.queryParameters['sessionId']; 
+    return BlocProvider(
+      create: (context) => getIt<TrainingMaterialBloc>()
+        ..add(LoadTrainingMaterialEvent(trainingId)),
+      child: MateriPelatihanPage(
+        trainingId: trainingId,
+        sessionId: sessionId, 
+      ),
+    );
+  },
+),
 
     GoRoute(
       path: '/mentor/:mentorId',
