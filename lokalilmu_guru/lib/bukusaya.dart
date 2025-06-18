@@ -286,7 +286,7 @@ class _BukuSayaPageState extends State<BukuSayaPage> {
                                                   onPressed: () {
                                                     context.read<PerpusCubit>().openBookFile(book);
                                                   },
-                                                  icon: const Icon(Icons.menu_book, size: 16),
+                                                  icon: const Icon(Icons.menu_book, size: 16, color: Colors.white),
                                                   label: const Text('Baca'),
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: const Color(0xFF1B3C73),

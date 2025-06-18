@@ -425,7 +425,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 20),
         Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
         child: _currentIndex == pages.length - 1
             ? SizedBox(
                 width: double.infinity,
@@ -466,7 +466,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _onNext,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0C3450),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -474,7 +474,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: const Text(
                       "Lanjut",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

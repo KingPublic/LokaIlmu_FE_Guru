@@ -803,6 +803,7 @@ class CurrencyInputFormatter extends TextInputFormatter {
 }
 
 // Popup Widget yang sesuai dengan desain gambar
+// Popup Widget yang diperbaiki untuk mengatasi overflow
 class _DealPopupWidget extends StatefulWidget {
   final String chatId;
   final int dealNumber;
@@ -932,73 +933,71 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
   }
 
   void _validateDates() {
-  if (_tanggalMulai == null) {
-    setState(() {
-      _dateError = 'Pilih tanggal mulai terlebih dahulu';
-    });
-  } else if (_tanggalSelesai == null) {
-    setState(() {
-      _dateError = 'Pilih tanggal selesai';
-    });
-  } else if (_tanggalSelesai!.isBefore(_tanggalMulai!)) {
-    setState(() {
-      _dateError = 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai';
-    });
-  } else {
-    setState(() {
-      _dateError = null;
-    });
+    if (_tanggalMulai == null) {
+      setState(() {
+        _dateError = 'Pilih tanggal mulai terlebih dahulu';
+      });
+    } else if (_tanggalSelesai == null) {
+      setState(() {
+        _dateError = 'Pilih tanggal selesai';
+      });
+    } else if (_tanggalSelesai!.isBefore(_tanggalMulai!)) {
+      setState(() {
+        _dateError = 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai';
+      });
+    } else {
+      setState(() {
+        _dateError = null;
+      });
+    }
   }
-}
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-  // Jika user mencoba pilih tanggal selesai tapi belum pilih tanggal mulai
-  if (!isStartDate && _tanggalMulai == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Pilih tanggal mulai terlebih dahulu'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-    return;
-  }
-
-  final DateTime? picked = await showDatePicker(
-    context: context,
-    initialDate: isStartDate 
-        ? DateTime.now() 
-        : (_tanggalMulai ?? DateTime.now()),
-    firstDate: isStartDate 
-        ? DateTime.now() 
-        : (_tanggalMulai ?? DateTime.now()),
-    lastDate: DateTime.now().add(const Duration(days: 365)),
-    builder: (context, child) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: Color(0xFF1B4D5C),
-          ),
+    if (!isStartDate && _tanggalMulai == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pilih tanggal mulai terlebih dahulu'),
+          duration: Duration(seconds: 2),
         ),
-        child: child!,
       );
-    },
-  );
-  
-  if (picked != null) {
-    setState(() {
-      if (isStartDate) {
-        _tanggalMulai = picked;
-        // Reset tanggal selesai jika sebelumnya sudah dipilih dan lebih awal dari tanggal mulai
-        if (_tanggalSelesai != null && _tanggalSelesai!.isBefore(picked)) {
-          _tanggalSelesai = null;
+      return;
+    }
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate 
+          ? DateTime.now() 
+          : (_tanggalMulai ?? DateTime.now()),
+      firstDate: isStartDate 
+          ? DateTime.now() 
+          : (_tanggalMulai ?? DateTime.now()),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF1B4D5C),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          _tanggalMulai = picked;
+          if (_tanggalSelesai != null && _tanggalSelesai!.isBefore(picked)) {
+            _tanggalSelesai = null;
+          }
+        } else {
+          _tanggalSelesai = picked;
         }
-      } else {
-        _tanggalSelesai = picked;
-      }
-    });
-    _validateDates();
+      });
+      _validateDates();
+    }
   }
-}
 
   Future<void> _submitDeal() async {
     if (!_formKey.currentState!.validate()) return;
@@ -1018,7 +1017,6 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
       _isLoading = true;
     });
 
-    // Simulasi delay
     await Future.delayed(const Duration(seconds: 1));
 
     final dealData = {
@@ -1032,7 +1030,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
       'tanggalMulai': _tanggalMulai,
       'tanggalSelesai': _tanggalSelesai,
       'jumlahPartisipan': _jumlahPartisipanController.text,
-      'hargaPerSesi': _hargaPerSesiController.text.replaceAll('.', ''), // Remove dots for parsing
+      'hargaPerSesi': _hargaPerSesiController.text.replaceAll('.', ''),
       'catatan': _catatanController.text.trim(),
       'timestamp': DateTime.now(),
     };
@@ -1097,7 +1095,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
             // Form Content
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16), // Reduced from 20 to 16
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -1118,179 +1116,180 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
                       
                       const SizedBox(height: 16),
                       
-                      // Durasi / Sesi dan Sesi Pertemuan
-                      Row(
+                      // FIXED: Durasi / Sesi dan Sesi Pertemuan - Layout yang diperbaiki
+                      Column( // Changed from Row to Column for better space management
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Durasi / Sesi',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                          // Durasi / Sesi
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Durasi / Sesi',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: TextFormField(
+                                      controller: _durasiController,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      style: const TextStyle(fontSize: 14),
+                                      onChanged: (value) => _validateDuration(),
+                                      decoration: InputDecoration(
+                                        hintText: '1',
+                                        hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
+                                        filled: true,
+                                        fillColor: const Color(0xFFF5F5F5),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: _durasiError != null ? Colors.red : const Color(0xFFE0E0E0)
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: _durasiError != null ? Colors.red : const Color(0xFFE0E0E0)
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                            color: _durasiError != null ? Colors.red : const Color(0xFF1B4D5C)
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12), // Reduced horizontal padding
+                                      ),
+                                      validator: (value) {
+                                        if (value?.isEmpty ?? true) {
+                                          return 'Durasi harus diisi';
+                                        }
+                                        return null;
+                                      },
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 2,
-                                      child: TextFormField(
-                                        controller: _durasiController,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                        style: const TextStyle(fontSize: 14),
-                                        onChanged: (value) => _validateDuration(),
-                                        decoration: InputDecoration(
-                                          hintText: '1',
-                                          hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF5F5F5),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: _durasiError != null ? Colors.red : const Color(0xFFE0E0E0)
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: _durasiError != null ? Colors.red : const Color(0xFFE0E0E0)
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                              color: _durasiError != null ? Colors.red : const Color(0xFF1B4D5C)
-                                            ),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    flex: 3,
+                                    child: DropdownButtonFormField<String>(
+                                      value: _durasiUnit,
+                                      onChanged: (value) {
+                                        setState(() => _durasiUnit = value!);
+                                        _validateDuration();
+                                      },
+                                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: const Color(0xFFF5F5F5),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                                         ),
-                                        validator: (value) {
-                                          if (value?.isEmpty ?? true) {
-                                            return 'Durasi harus diisi';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      flex: 3,
-                                      child: DropdownButtonFormField<String>(
-                                        value: _durasiUnit,
-                                        onChanged: (value) {
-                                          setState(() => _durasiUnit = value!);
-                                          _validateDuration();
-                                        },
-                                        style: const TextStyle(fontSize: 14, color: Colors.black),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: const Color(0xFFF5F5F5),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: const BorderSide(color: Color(0xFF1B4D5C)),
-                                          ),
-                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                                         ),
-                                        items: _durasiUnitOptions.map((String option) {
-                                          return DropdownMenuItem<String>(
-                                            value: option,
-                                            child: Text(option),
-                                          );
-                                        }).toList(),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: const BorderSide(color: Color(0xFF1B4D5C)),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12), // Reduced horizontal padding
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                if (_durasiError != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _durasiError!,
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12,
+                                      items: _durasiUnitOptions.map((String option) {
+                                        return DropdownMenuItem<String>(
+                                          value: option,
+                                          child: Text(option),
+                                        );
+                                      }).toList(),
                                     ),
                                   ),
                                 ],
+                              ),
+                              if (_durasiError != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  _durasiError!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ],
-                            ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Sesi Pertemuan',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                          
+                          const SizedBox(height: 16), // Space between the two fields
+                          
+                          // Sesi Pertemuan
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Sesi Pertemuan',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextFormField(
+                                controller: _sesiPertemuanController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                style: const TextStyle(fontSize: 14),
+                                onChanged: (value) => _validateSesi(),
+                                decoration: InputDecoration(
+                                  hintText: '10',
+                                  hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
+                                  filled: true,
+                                  fillColor: const Color(0xFFF5F5F5),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: _sesiError != null ? Colors.red : const Color(0xFFE0E0E0)
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: _sesiError != null ? Colors.red : const Color(0xFFE0E0E0)
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: _sesiError != null ? Colors.red : const Color(0xFF1B4D5C)
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                ),
+                                validator: (value) {
+                                  if (value?.isEmpty ?? true) {
+                                    return 'Sesi harus diisi';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              if (_sesiError != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  _sesiError!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                TextFormField(
-                                  controller: _sesiPertemuanController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  style: const TextStyle(fontSize: 14),
-                                  onChanged: (value) => _validateSesi(),
-                                  decoration: InputDecoration(
-                                    hintText: '10',
-                                    hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
-                                    filled: true,
-                                    fillColor: const Color(0xFFF5F5F5),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                        color: _sesiError != null ? Colors.red : const Color(0xFFE0E0E0)
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                        color: _sesiError != null ? Colors.red : const Color(0xFFE0E0E0)
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                        color: _sesiError != null ? Colors.red : const Color(0xFF1B4D5C)
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                  ),
-                                  validator: (value) {
-                                    if (value?.isEmpty ?? true) {
-                                      return 'Sesi harus diisi';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                if (_sesiError != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _sesiError!,
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
                               ],
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -1308,7 +1307,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
                               (value) => setState(() => _metodeLatihan = value!),
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12), // Reduced from 16 to 12
                           Expanded(
                             child: _buildDropdown(
                               'Lokasi Pelatihan',
@@ -1342,7 +1341,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            padding: EdgeInsets.symmetric(horizontal: 6), // Reduced from 8 to 6
                             child: Text('-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                           ),
                           Expanded(
@@ -1467,7 +1466,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
             // Submit Button
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16), // Reduced from 20 to 16
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submitDeal,
                 style: ElevatedButton.styleFrom(
@@ -1596,7 +1595,7 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
               borderSide: const BorderSide(color: Color(0xFF1B4D5C)),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
+              horizontal: 10, // Reduced from 12 to 10
               vertical: 12,
             ),
           ),
@@ -1617,52 +1616,52 @@ class _DealPopupWidgetState extends State<_DealPopupWidget> {
     VoidCallback onTap,
     {bool isEndDate = false}
   ) {
-  final bool isDisabled = isEndDate && _tanggalMulai == null;
-  
-  return GestureDetector(
-    onTap: isDisabled ? null : onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: isDisabled 
-            ? const Color(0xFFF0F0F0) 
-            : const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
+    final bool isDisabled = isEndDate && _tanggalMulai == null;
+    
+    return GestureDetector(
+      onTap: isDisabled ? null : onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12), // Reduced horizontal padding
+        decoration: BoxDecoration(
           color: isDisabled 
-              ? const Color(0xFFCCCCCC) 
-              : const Color(0xFFE0E0E0)
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              date != null 
-                  ? DateFormat('dd/MM/yy').format(date)
-                  : placeholder,
-              style: TextStyle(
-                color: isDisabled
-                    ? const Color(0xFFCCCCCC)
-                    : date != null 
-                        ? Colors.black 
-                        : const Color(0xFFBBBBBB),
-                fontSize: 14,
-              ),
-            ),
-          ),
-          Icon(
-            Icons.calendar_today,
-            size: 16,
+              ? const Color(0xFFF0F0F0) 
+              : const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
             color: isDisabled 
                 ? const Color(0xFFCCCCCC) 
-                : const Color(0xFF666666),
+                : const Color(0xFFE0E0E0)
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                date != null 
+                    ? DateFormat('dd/MM/yy').format(date)
+                    : placeholder,
+                style: TextStyle(
+                  color: isDisabled
+                      ? const Color(0xFFCCCCCC)
+                      : date != null 
+                          ? Colors.black 
+                          : const Color(0xFFBBBBBB),
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.calendar_today,
+              size: 16,
+              color: isDisabled 
+                  ? const Color(0xFFCCCCCC) 
+                  : const Color(0xFF666666),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _MessageBubble extends StatelessWidget {
