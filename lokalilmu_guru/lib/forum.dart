@@ -20,7 +20,8 @@ class _ForumPageState extends State<ForumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Column(
+      body: SafeArea(
+      child:Column(
         children: [
           // Custom App Bar
           Container(
@@ -65,6 +66,7 @@ class _ForumPageState extends State<ForumPage> {
             child: _showCreatePost ? _buildCreatePostView() : _buildForumListView(),
           ),
         ],
+      ),
       ),
       bottomNavigationBar: const AppBottomNavbar(currentIndex: 3),
       floatingActionButton: _showCreatePost ? null : SizedBox(
@@ -696,7 +698,7 @@ class _CreatePostViewState extends State<CreatePostView> {
                             'Kirim ke Forum',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
