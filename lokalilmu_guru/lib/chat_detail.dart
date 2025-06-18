@@ -705,7 +705,7 @@ class _DealRequestCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
