@@ -1,4 +1,4 @@
-# ADR 001: Pemilihan Arsitektur MVVM
+# ADR 001: Pemilihan Arsitektur BLoC Pattern
 
 ## Status
 Accepted
@@ -25,18 +25,18 @@ Diperlukan arsitektur yang mampu:
 
 ## Decision
 
-Kami memutuskan untuk menggunakan pola arsitektur **MVVM (Model-View-ViewModel)** dalam aplikasi LokaIlmu. Dengan pola ini:
+Kami memutuskan untuk menggunakan pola arsitektur **BLoC Pattern** dalam aplikasi LokaIlmu. Dengan pola ini:
 
-- **Model** bertanggung jawab atas data dan logika bisnis tingkat rendah.
-- **ViewModel** bertindak sebagai jembatan antara View dan Model, mengelola state serta menyediakan data dan logika presentasi ke View.
-- **View** hanya bertanggung jawab menampilkan UI berdasarkan state yang diberikan oleh ViewModel.
+- **Data Layer (Repository)** bertanggung jawab untuk menyediakan data dari API dan melakukan parsing ke model. 
+- **Business Logic Layer (BLoC)** bertanggung jawab untuk menerima events dari UI, mengelola state aplikasi, dan berkomunikasi dengan repository.
+- **Presentation Layer (UI Layer)** hanya bertanggung jawab menampilkan UI berdasarkan state dan mengirim events yang diterima dari user ke BLoC.
 
 ## Consequences
 
 ### Keuntungan
 
 - **Separation of Concerns**: Meningkatkan keterbacaan dan maintainability kode.
-- **Testability**: ViewModel mudah diuji karena bebas dari kode UI.
+- **Testability**: BLoC mudah diuji karena bebas dari kode UI.
 - **Scalability**: Struktur yang modular memudahkan pengembangan fitur baru.
 
 ### Potensi Risiko
