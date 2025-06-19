@@ -20,7 +20,8 @@ class _ForumPageState extends State<ForumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Column(
+      body: SafeArea(
+      child:Column(
         children: [
           // Custom App Bar
           Container(
@@ -65,6 +66,7 @@ class _ForumPageState extends State<ForumPage> {
             child: _showCreatePost ? _buildCreatePostView() : _buildForumListView(),
           ),
         ],
+      ),
       ),
       bottomNavigationBar: const AppBottomNavbar(currentIndex: 3),
       floatingActionButton: _showCreatePost ? null : SizedBox(
@@ -281,15 +283,17 @@ class _ForumPageState extends State<ForumPage> {
           // Action buttons
           Row(
             children: [
-              _buildActionButton(
+              _buildVoteButton(
                 icon: Icons.keyboard_arrow_up,
                 label: post.upvotes.toString(),
+                isSelected: post.userVoteStatus == VoteStatus.upvoted,
                 onTap: () => context.read<ForumCubit>().upvotePost(post.id),
               ),
               const SizedBox(width: 16),
-              _buildActionButton(
+              _buildVoteButton(
                 icon: Icons.keyboard_arrow_down,
                 label: post.downvotes.toString(),
+                isSelected: post.userVoteStatus == VoteStatus.downvoted,
                 onTap: () => context.read<ForumCubit>().downvotePost(post.id),
               ),
               const SizedBox(width: 16),
@@ -306,6 +310,51 @@ class _ForumPageState extends State<ForumPage> {
       ),
     );
   }
+
+Widget _buildVoteButton({
+  required IconData icon,
+  required String label,
+  required bool isSelected,
+  required VoidCallback onTap,
+}) {
+  return InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(6),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFF1B3C73).withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        border: isSelected 
+          ? Border.all(color: const Color(0xFF1B3C73), width: 1)
+          : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: isSelected ? 22 : 20, // Ukuran lebih besar saat selected
+            color: isSelected 
+              ? const Color(0xFF1B3C73)
+              : Colors.grey[600],
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected 
+                ? const Color(0xFF1B3C73)
+                : Colors.grey[600],
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Widget _buildActionButton({
     required IconData icon,
@@ -649,8 +698,8 @@ class _CreatePostViewState extends State<CreatePostView> {
                             'Kirim ke Forum',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                   ),

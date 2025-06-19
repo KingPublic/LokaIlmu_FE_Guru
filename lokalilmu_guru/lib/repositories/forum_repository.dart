@@ -2,11 +2,15 @@ import '../model/forum_model.dart';
 import 'edit_repository.dart';
 
 class ForumRepository {
-
   final EditProfileRepository _profileRepository;
+
+  // Map untuk menyimpan status vote user per post
+  // Key: postId, Value: VoteStatus
+  final Map<String, VoteStatus> _userVotes = {};
 
   ForumRepository({required EditProfileRepository profileRepository})
       : _profileRepository = profileRepository;
+
   // Dummy data untuk forum posts
   List<ForumPost> _posts = [
     ForumPost(
@@ -22,6 +26,7 @@ class ForumRepository {
       downvotes: 2,
       comments: 18,
       tags: ['motivasi', 'siswa', 'pembelajaran'],
+      userVoteStatus: VoteStatus.none,
     ),
     ForumPost(
       id: '2',
@@ -36,6 +41,7 @@ class ForumRepository {
       downvotes: 2,
       comments: 12,
       tags: ['teknologi', 'digital', 'efektivitas'],
+      userVoteStatus: VoteStatus.none,
     ),
     ForumPost(
       id: '3',
@@ -50,6 +56,7 @@ class ForumRepository {
       downvotes: 1,
       comments: 25,
       tags: ['matematika', 'kreatif', 'metode'],
+      userVoteStatus: VoteStatus.none,
     ),
     ForumPost(
       id: '4',
@@ -64,16 +71,20 @@ class ForumRepository {
       downvotes: 0,
       comments: 14,
       tags: ['eksperimen', 'praktikum', 'ipa'],
+      userVoteStatus: VoteStatus.none,
     ),
   ];
 
   List<ForumPost> getAllPosts() {
-    return List.from(_posts);
+    // Update posts dengan status vote user saat ini
+    return _posts.map((post) => post.copyWith(
+      userVoteStatus: _userVotes[post.id] ?? VoteStatus.none,
+    )).toList();
   }
 
   List<ForumPost> getPostsByCategory(String category) {
     if (category == 'Semua Subjek') return getAllPosts();
-    return _posts.where((post) => post.category == category).toList();
+    return getAllPosts().where((post) => post.category == category).toList();
   }
 
   List<ForumPost> searchPosts(String keyword, String category) {
@@ -103,6 +114,7 @@ class ForumRepository {
       category: request.category,
       createdAt: DateTime.now(),
       tags: request.tags,
+      userVoteStatus: VoteStatus.none,
     );
     
     _posts.insert(0, newPost);
@@ -113,25 +125,127 @@ class ForumRepository {
     await Future.delayed(Duration(milliseconds: 300));
     
     final index = _posts.indexWhere((post) => post.id == postId);
-    if (index != -1) {
-      _posts[index] = _posts[index].copyWith(
-        upvotes: _posts[index].upvotes + 1,
-      );
-      return _posts[index];
+    if (index == -1) {
+      throw Exception('Post not found');
     }
-    throw Exception('Post not found');
+
+    final currentPost = _posts[index];
+    final currentVoteStatus = _userVotes[postId] ?? VoteStatus.none;
+    
+    int newUpvotes = currentPost.upvotes;
+    int newDownvotes = currentPost.downvotes;
+    VoteStatus newVoteStatus;
+    
+    if (currentVoteStatus == VoteStatus.upvoted) {
+      // User sudah upvote, batalkan upvote
+      newUpvotes = currentPost.upvotes - 1;
+      newVoteStatus = VoteStatus.none;
+    } else if (currentVoteStatus == VoteStatus.downvoted) {
+      // User sudah downvote, ganti ke upvote
+      newUpvotes = currentPost.upvotes + 1;
+      newDownvotes = currentPost.downvotes - 1;
+      newVoteStatus = VoteStatus.upvoted;
+    } else {
+      // User belum vote, tambah upvote
+      newUpvotes = currentPost.upvotes + 1;
+      newVoteStatus = VoteStatus.upvoted;
+    }
+    
+    // Update vote status user
+    _userVotes[postId] = newVoteStatus;
+    
+    // Update post
+    _posts[index] = currentPost.copyWith(
+      upvotes: newUpvotes,
+      downvotes: newDownvotes,
+      userVoteStatus: newVoteStatus,
+    );
+    
+    return _posts[index];
   }
 
   Future<ForumPost> downvotePost(String postId) async {
     await Future.delayed(Duration(milliseconds: 300));
     
     final index = _posts.indexWhere((post) => post.id == postId);
-    if (index != -1) {
-      _posts[index] = _posts[index].copyWith(
-        downvotes: _posts[index].downvotes + 1,
-      );
-      return _posts[index];
+    if (index == -1) {
+      throw Exception('Post not found');
     }
-    throw Exception('Post not found');
+
+    final currentPost = _posts[index];
+    final currentVoteStatus = _userVotes[postId] ?? VoteStatus.none;
+    
+    int newUpvotes = currentPost.upvotes;
+    int newDownvotes = currentPost.downvotes;
+    VoteStatus newVoteStatus;
+    
+    if (currentVoteStatus == VoteStatus.downvoted) {
+      // User sudah downvote, batalkan downvote
+      newDownvotes = currentPost.downvotes - 1;
+      newVoteStatus = VoteStatus.none;
+    } else if (currentVoteStatus == VoteStatus.upvoted) {
+      // User sudah upvote, ganti ke downvote
+      newUpvotes = currentPost.upvotes - 1;
+      newDownvotes = currentPost.downvotes + 1;
+      newVoteStatus = VoteStatus.downvoted;
+    } else {
+      // User belum vote, tambah downvote
+      newDownvotes = currentPost.downvotes + 1;
+      newVoteStatus = VoteStatus.downvoted;
+    }
+    
+    // Update vote status user
+    _userVotes[postId] = newVoteStatus;
+    
+    // Update post
+    _posts[index] = currentPost.copyWith(
+      upvotes: newUpvotes,
+      downvotes: newDownvotes,
+      userVoteStatus: newVoteStatus,
+    );
+    
+    return _posts[index];
+  }
+
+  Future<ForumPost> removeVote(String postId) async {
+    await Future.delayed(Duration(milliseconds: 300));
+    
+    final index = _posts.indexWhere((post) => post.id == postId);
+    if (index == -1) {
+      throw Exception('Post not found');
+    }
+
+    final currentPost = _posts[index];
+    final currentVoteStatus = _userVotes[postId] ?? VoteStatus.none;
+    
+    int newUpvotes = currentPost.upvotes;
+    int newDownvotes = currentPost.downvotes;
+    
+    if (currentVoteStatus == VoteStatus.upvoted) {
+      newUpvotes = currentPost.upvotes - 1;
+    } else if (currentVoteStatus == VoteStatus.downvoted) {
+      newDownvotes = currentPost.downvotes - 1;
+    }
+    
+    // Remove vote status user
+    _userVotes[postId] = VoteStatus.none;
+    
+    // Update post
+    _posts[index] = currentPost.copyWith(
+      upvotes: newUpvotes,
+      downvotes: newDownvotes,
+      userVoteStatus: VoteStatus.none,
+    );
+    
+    return _posts[index];
+  }
+
+  // Method helper untuk get post by id
+  ForumPost? getPostById(String postId) {
+    try {
+      return getAllPosts().firstWhere((post) => post.id == postId);
+    } catch (e) {
+      return null;
+    }
   }
 }

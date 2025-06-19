@@ -31,7 +31,7 @@ void debugFormData(FormData formData) {
 class AuthRepository {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://127.0.0.1:8000/api',
+      baseUrl: 'http://192.168.193.176:8000/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {

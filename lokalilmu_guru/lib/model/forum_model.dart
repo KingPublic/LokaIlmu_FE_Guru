@@ -11,6 +11,7 @@ class ForumPost {
   final int downvotes;
   final int comments;
   final List<String> tags;
+  final VoteStatus userVoteStatus; 
 
   ForumPost({
     required this.id,
@@ -25,6 +26,7 @@ class ForumPost {
     this.downvotes = 0,
     this.comments = 0,
     this.tags = const [],
+    this.userVoteStatus = VoteStatus.none, // Default tidak ada vote
   });
 
   ForumPost copyWith({
@@ -40,6 +42,7 @@ class ForumPost {
     int? downvotes,
     int? comments,
     List<String>? tags,
+    VoteStatus? userVoteStatus, // Tambahan parameter
   }) {
     return ForumPost(
       id: id ?? this.id,
@@ -54,6 +57,7 @@ class ForumPost {
       downvotes: downvotes ?? this.downvotes,
       comments: comments ?? this.comments,
       tags: tags ?? this.tags,
+      userVoteStatus: userVoteStatus ?? this.userVoteStatus,
     );
   }
 
@@ -71,6 +75,13 @@ class ForumPost {
       return 'Baru saja';
     }
   }
+}
+
+// Enum untuk status vote user
+enum VoteStatus {
+  none,    // Belum vote
+  upvoted, // Sudah upvote
+  downvoted // Sudah downvote
 }
 
 class CreatePostRequest {

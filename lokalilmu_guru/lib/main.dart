@@ -33,6 +33,8 @@ import 'model/chat_model.dart';
 import 'chat.dart';
 import 'chat_detail.dart';
 import 'mentor_profile.dart';
+import 'blocs/training_material_bloc.dart';
+import 'materi_pelatihan.dart';
 
 void main() async {
   // Inisialisasi Flutter binding sekali saja
@@ -72,6 +74,9 @@ void setupDI() {
   getIt.registerLazySingleton(() => ForumRepository(profileRepository: getIt<EditProfileRepository>(),)); 
 
   getIt.registerFactory(() => DashboardBloc(
+        courseRepository: getIt<CourseRepository>()));
+
+  getIt.registerFactory(() => TrainingMaterialBloc(
         courseRepository: getIt<CourseRepository>()));
   
   getIt.registerFactory(() => PerpusCubit(getIt<BookRepository>()));
@@ -175,6 +180,22 @@ final GoRouter _router = GoRouter(
         );
       },
     ),
+
+    GoRoute(
+  path: '/materi-pelatihan/:trainingId',
+  builder: (context, state) {
+    final trainingId = state.pathParameters['trainingId']!;
+    final sessionId = state.uri.queryParameters['sessionId']; 
+    return BlocProvider(
+      create: (context) => getIt<TrainingMaterialBloc>()
+        ..add(LoadTrainingMaterialEvent(trainingId)),
+      child: MateriPelatihanPage(
+        trainingId: trainingId,
+        sessionId: sessionId, 
+      ),
+    );
+  },
+),
 
     GoRoute(
       path: '/mentor/:mentorId',
@@ -404,7 +425,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 20),
         Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
         child: _currentIndex == pages.length - 1
             ? SizedBox(
                 width: double.infinity,
@@ -445,7 +466,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _onNext,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0C3450),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -453,7 +474,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: const Text(
                       "Lanjut",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

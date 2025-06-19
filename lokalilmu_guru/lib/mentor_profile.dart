@@ -326,7 +326,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFC107),
                                     foregroundColor: const Color(0xFF1B3C73),
-                                    padding: const EdgeInsets.symmetric(vertical: 22),
+                                    padding: const EdgeInsets.symmetric(vertical: 18),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -346,7 +346,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF1B3C73),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 22),
+                                    padding: const EdgeInsets.symmetric(vertical: 18),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
