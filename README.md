@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" width="320">
+  <img src="PPT ALP LokaIlmu Semester 4 (1).png" width="320">
 </p>
 
 <h1 align="center">📚 LokaIlmu</h1>
