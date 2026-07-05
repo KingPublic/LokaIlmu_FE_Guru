@@ -126,36 +126,7 @@ The project followed a complete Software Engineering workflow:
 | Digital Library | Educational resources |
 | Mentor Matching | Connect teachers with mentors |
 | Discussion Forum | Knowledge sharing |
-| Payment | Training payment workflow |
 | Progress Tracking | Monitor learning achievements |
-
----
-
-# 📁 Repository Structure
-
-```text
-.
-├── assets/
-├── lib/
-├── docs/
-├── backend/
-├── database/
-└── README.md
-```
-
----
-
-# 👩🏻‍💻 My Contributions
-
-Throughout this project, I contributed to:
-
-- 🎨 UI/UX Design (Figma)
-- 📱 Flutter Frontend Development
-- 🗄 Database Design (ERD & Relational Schema)
-- 🔗 REST API Design
-- 📝 Software Requirements Specification (SRS)
-- 🏗 Client–Server Architecture
-- 🧪 Integration Testing
 
 ---
 
@@ -176,20 +147,12 @@ Throughout this project, I contributed to:
 Project documentation includes:
 
 - Software Requirements Specification (SRS)
-- Entity Relationship Diagram (ERD)
-- API Specification
-- Wireframes
-- UML Diagrams
-- System Architecture
+- Architecture Decision Record (ADR)
+- Integration Plan
 
 ---
 
 # 🤝 Team
 
-Developed as a Software Engineering project at **Ciputra University Makassar**.
+Developed as a project integration, includes Mobile Application Development, Software Engineering, and Entrepreurship Global Innovation at **Ciputra University Makassar**.
 
----
-
-# 📄 License
-
-This repository is intended for educational and portfolio purposes.
