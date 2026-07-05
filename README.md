@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="PPT ALP LokaIlmu Semester 4 (1).png" width="320">
+  <img src="assets/PPT ALP LokaIlmu Semester 4 (1).png" width="320">
 </p>
 
 <h1 align="center">📚 LokaIlmu</h1>
@@ -32,7 +32,7 @@ Unlike a prototype-only project, **LokaIlmu was designed and implemented as a fu
 # 🎥 Demo
 
 <p align="center">
-<img src="assets/demo.gif" width="320">
+<img src="assets/PPTALPLokaIlmuSemester4-ezgif.com-video-to-gif-converter.gif" width="320">
 </p>
 
 ---
@@ -47,26 +47,6 @@ Unlike a prototype-only project, **LokaIlmu was designed and implemented as a fu
 - 📈 Learning Progress Tracking
 - 💳 Payment Module
 - 👤 User Profile
-
----
-
-# 📱 Application Screens
-
-<p align="center">
-
-<img src="assets/login.png" width="180"/>
-<img src="assets/home.png" width="180"/>
-<img src="assets/course.png" width="180"/>
-
-</p>
-
-<p align="center">
-
-<img src="assets/forum.png" width="180"/>
-<img src="assets/mentor.png" width="180"/>
-<img src="assets/profile.png" width="180"/>
-
-</p>
 
 ---
 
