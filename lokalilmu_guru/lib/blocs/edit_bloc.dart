@@ -1,7 +1,8 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../model/loginregis_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lokalilmu_guru/repositories/edit_repository.dart';
+
+import '../model/loginregis_model.dart';
 
 // Events
 abstract class EditProfileEvent extends Equatable {
@@ -107,14 +108,14 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     try {
       RegisterModel user;
       
-      if (event.userData != null) {
-        // Use provided user data
-        repository.setCurrentUser(event.userData!);
-        user = event.userData!;
-      } else {
+      // if (event.userData != null) {
+      //   // Use provided user data
+      //   repository.setCurrentUser(event.userData!);
+      //   user = event.userData!;
+      // } else {
         // Try to get from repository
         user = await repository.getCurrentUser();
-      }
+      // }
       
       emit(EditProfileLoaded(user));
     } catch (e) {
